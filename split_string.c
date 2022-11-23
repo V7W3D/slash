@@ -5,15 +5,12 @@
 int split_string(char *string, const char *delimiters, char **result){
   int count = 0;
 
-  if(result == NULL){
-    result = malloc(sizeof(char*) * MAX_ARGS_NUMBER);
-  }
   char *token = strtok(string, delimiters);
-  while(token){
+  while(token != NULL){
     result[count] = malloc(sizeof(char)*strlen(token));
     strcpy(result[count], token);
     count++;
-    strtok(NULL, delimiters); 
+    token = strtok(NULL, delimiters); 
   }
   return count;
 }
