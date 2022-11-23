@@ -60,14 +60,26 @@ void string_cpy (struct string * dest, struct string * src){
 }
 
 
-void string_format(struct string * str,char *prefix,int maxSize, int prefixeSize){
-	char *old_data = NULL;
-	if (str->length > maxSize){
-		old_data = str->data;
-		*(old_data + str->length - (maxSize - 1)) = '\0';
-		str->data = str->data + str->length - maxSize;
-		str->length = maxSize;
-		memmove(str->data, prefix, prefixeSize);
-		free(old_data);
+int string_n_copy_from_end(struct string *dest, struct string *src, int nBbytes){
+	if (nBbytes > dest->capacity){
+		return -1;
 	}
+	*(dest->data) = '\0';
+	memmove(dest->data, src->data + src->length - nBbytes, nBbytes);
+	*(dest->data + nBbytes) = '\0';
+	dest->length = nBbytes;
+	return 0;
+}
+
+int insert_prefixe(struct string *str, const char *prefixe, const int sizePrefixe){
+	if (sizePrefixe > str->capacity){
+		return -1;
+	}
+	memmove(str->data, prefixe, sizePrefixe);
+	return 0;
+}
+
+void init_String(struct string * str){
+	*(str->data) = '\0';
+	str->length = 0;
 }
