@@ -29,4 +29,6 @@ void string_truncate (struct string * str, size_t nchars);
 
 void string_cpy (struct string * dest, struct string * src);
 
+void string_format(struct string * str,char *prefix, int maxSize, int prefixeSize);
+
 #endif // MYSTRING_H

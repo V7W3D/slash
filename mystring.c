@@ -58,3 +58,16 @@ void string_cpy (struct string * dest, struct string * src){
 	strcpy(dest->data, src->data);
 	dest->length = src->length;
 }
+
+
+void string_format(struct string * str,char *prefix,int maxSize, int prefixeSize){
+	char *old_data = NULL;
+	if (str->length > maxSize){
+		old_data = str->data;
+		*(old_data + str->length - (maxSize - 1)) = '\0';
+		str->data = str->data + str->length - maxSize;
+		str->length = maxSize;
+		memmove(str->data, prefix, prefixeSize);
+		free(old_data);
+	}
+}
