@@ -24,6 +24,14 @@ static int isNumber(char *str){
 	return 1;
 }
 
+static void addLigneToHistory(struct string *PROMPT, const char *command){
+	struct string *linecmd = string_new(PROMPT->length + strlen(command) + 1);
+	string_append(linecmd, PROMPT->data);
+	string_append(linecmd, command);
+	add_history(linecmd->data);
+	string_delete(linecmd);
+}
+
 int main(int argc, char **argv){
 	PWD = string_new(PATH_MAX);
 	OLD_PATH = string_new(PATH_MAX);
@@ -55,7 +63,9 @@ int main(int argc, char **argv){
 		}
 		write(STDERR_FILENO, PROMPT->data, PROMPT->length);
 		args = readline("");
-		if (args == NULL || strlen(args) == 0){
+		if (args == NULL){
+			exit(EXIT_FAILURE);
+		}else if (strlen(args) == 0){
 			write(STDERR_FILENO, "\nerror readline\n", 17);
 		}else{
 			len_Splited_args = split_string(args, " ", splited_args);
