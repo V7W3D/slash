@@ -40,8 +40,6 @@ int main(int argc, char **argv){
 	OLD_PATH = string_new(PATH_MAX);
 	struct string *PROMPT = string_new(MaxLenPrompt + 1);
 	char *args , **splited_args;
-	int len_Splited_args;
-	splited_args = NULL;
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
 	if (PROMPT == NULL){
@@ -50,7 +48,7 @@ int main(int argc, char **argv){
 	}
 	while(1){
 		init_string(PROMPT);
-		len_Splited_args = 0;
+		int len_Splited_args;
 		args = NULL;
 		if (PWD->length + 6 <= MaxLenPrompt){
 			string_append(PROMPT, "[0]");
@@ -68,7 +66,8 @@ int main(int argc, char **argv){
 			//add the command line to the history
 			addLigneToHistory(PROMPT, args);
 			//-----------------------------------
-			len_Splited_args = split_string(args, " ", &splited_args);
+			splited_args = allocate_splited_string();
+			len_Splited_args = split_string(args, " ", splited_args);
 			if (len_Splited_args > MAX_ARGS_NUMBER){
 				write(STDERR_FILENO, "\nMAX_ARGS_NUMBER\n", 17);
 			}else if(!checkArgs(splited_args, len_Splited_args)){
@@ -86,7 +85,7 @@ int main(int argc, char **argv){
 								string_delete(PROMPT);
 								string_delete(PWD);
 								string_delete(OLD_PATH);
-								free_splited_string(splited_args, len_Splited_args);
+								free_splited_string(splited_args, PATH_MAX);
 								exit(exitCode);
 							}else{
 								write(STDERR_FILENO, "exit : error must be an integer\n", 32);
@@ -106,6 +105,7 @@ int main(int argc, char **argv){
 				}
 			}
 			free(args);
+			free_splited_string(splited_args, PATH_MAX);
 		}
 	}
 }

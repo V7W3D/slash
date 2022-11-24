@@ -11,8 +11,8 @@ struct string * PWD = NULL;
 struct string * OLD_PATH = NULL;
 
 void maj_PWD_L(char *ref){
-  char **splited_ref = NULL;
-  int len = split_string(ref, "/", &splited_ref);
+  char **splited_ref = allocate_splited_string();
+  int len = split_string(ref, "/", splited_ref);
   int nchars;
   for(int i=0; i<len; i++){
     if(strcmp(splited_ref[i], "..") == 0){
