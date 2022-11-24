@@ -22,6 +22,7 @@ int maj_PWD_L(char *ref){
         nchars = 0;
         for(int i = PWD->length; PWD->data[i] != '/'; i--) nchars++;
         string_truncate(PWD, nchars);
+	if(PWD->length == 0) string_append(PWD, "/");
       }
       else return -1;
     }
@@ -88,6 +89,10 @@ int slash_cd(char **args, int len){
       }
       else{
         string_cpy(OLD_PATH, PWD);
+	if(args[0][0] == '/'){
+	  string_truncate(PWD, PWD->length);
+	  string_append(PWD, "/");
+	}
         if(maj_PWD_L(args[0]) == -1) {
 	  maj_PWD_P(); 
 	}
