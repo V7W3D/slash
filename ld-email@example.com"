@@ -1,0 +1,149 @@
+[33mcommit b4dcea432eafe2f92a4f88758327ee2615572a4d[m[33m ([m[1;36mHEAD -> [m[1;32myounes[m[33m, [m[1;31morigin/younes[m[33m)[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Thu Nov 24 09:46:27 2022 -0500
+
+    test
+
+[33mcommit 7f435a2545b5079bcde2759afbafd4e5209f35b7[m
+Merge: 8094f87 998eb70
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Thu Nov 24 09:04:43 2022 -0500
+
+    merge all branches
+
+[33mcommit 8094f8730062f7148d097e092934dbcd89cd8307[m
+Merge: 64fbde3 0a1c4a2
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Thu Nov 24 08:49:14 2022 -0500
+
+    updating stdout
+
+[33mcommit 998eb70203d355fe8ab5f1e90fe6f24ef255aa10[m[33m ([m[1;31morigin/Ahmed[m[33m)[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Thu Nov 24 14:48:57 2022 +0100
+
+    slash_cd() : Avec parsing des arguments
+
+[33mcommit 0a1c4a2ec967592b84230918e05aa6d35b993903[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Thu Nov 24 14:05:29 2022 +0100
+
+    slash_cd() : Traitement des chemins absolus
+
+[33mcommit 64fbde33b86ff1d972ca249d637485e90acd21a5[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Thu Nov 24 08:04:56 2022 -0500
+
+    add history
+
+[33mcommit fadb9450b1d9f52e08955bd77b6055dbe308e927[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 19:49:38 2022 -0500
+
+    add cd and pwd in the main()
+
+[33mcommit 48738e3f7ca06518d5273880cfb0f08b2bb64258[m
+Merge: 777a981 6fa7036
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 18:56:17 2022 -0500
+
+    solve conflict
+
+[33mcommit 777a98169183307f11132fbe9e26cded10c19db8[m
+Merge: 529efa6 7f73f26
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 18:51:51 2022 -0500
+
+    maj cd
+
+[33mcommit 529efa6b14b11f8c14bcb04bbb2a951ac69cf6a4[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 18:12:44 2022 -0500
+
+    resolve exit conflicts
+
+[33mcommit 9fb9c1366ab3680c484332285c8019eea3c81386[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 15:44:06 2022 -0500
+
+    resolve some bugs main
+
+[33mcommit d665c191e2d3b12242c39cbb46bf25662dded6f7[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 15:16:36 2022 -0500
+
+    build the main
+
+[33mcommit 6fa70369ca99e13f2d324731331591106b02e73c[m[33m ([m[1;31morigin/Yanis[m[33m, [m[1;32mAhmed[m[33m)[m
+Author: yahmiy <yanis.yahmi2002@gmail.com>
+Date:   Wed Nov 23 20:00:05 2022 +0100
+
+    affichage pwd
+
+[33mcommit 088d884b4643759c7ebe302d3ee5d7b44a96d926[m
+Merge: 1d1a424 7a501d8
+Author: yahmiy <yanis.yahmi2002@gmail.com>
+Date:   Wed Nov 23 19:25:27 2022 +0100
+
+    Fonctions slash_pwd()
+
+[33mcommit 7f73f26913055bf8f97e4d0eeab1a766c5dd40e1[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Wed Nov 23 19:24:26 2022 +0100
+
+    slash_cd() corrigée et testée
+
+[33mcommit f4d788b0a01f2805fb1177db9e47b5540cd4e7d7[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 12:26:36 2022 -0500
+
+    add string_format
+
+[33mcommit 87a4f7e436bcd34ec88f74b7663afcf6d604bb52[m
+Merge: e6eed0c 7a501d8
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 12:05:55 2022 -0500
+
+    add makefile
+
+[33mcommit 7a501d8c03eaa0c7c8fa50e110e0a9baa29b962d[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Wed Nov 23 17:03:26 2022 +0100
+
+    Fonction slash_cd() et mise à jour de PWD en conséquence
+
+[33mcommit 53ab775b7f6a289a887a3bbdadf300a5ef4d273f[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Wed Nov 23 17:01:57 2022 +0100
+
+    Ajout des fonctions de manipulation de chaines de caractères : append() et truncate()
+
+[33mcommit 3f74c2112c33f304265d3b39316021a0da0d1d0c[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Wed Nov 23 16:59:16 2022 +0100
+
+    Correction sur les fonctions de découpage de chaines de caractères
+
+[33mcommit e6eed0c8f8476356bd1aaebbe846550b2720f341[m
+Author: emma nafaa <nafaae813@gmail.com>
+Date:   Wed Nov 23 10:32:15 2022 -0500
+
+    add .gitignore
+
+[33mcommit 1d1a4246020f2648c5a56ff283f7740cd547d7bc[m
+Author: yahmiy <yanis.yahmi2002@gmail.com>
+Date:   Sun Nov 20 20:33:03 2022 +0100
+
+    Parsing functions
+
+[33mcommit 1f5186fefefa2124c1b7ed9d1b44bfb243aab530[m
+Author: SIDI AHMED Ahmed <sidiahmedahmed2001@gmail.com>
+Date:   Sun Nov 20 03:43:31 2022 +0100
+
+    split_string : fonctions pour le découpage d'une chaîne de caractères suivant un séparateur donné
+
+[33mcommit 58db6f584718c1a1a36372e4d0e60866da6ba37e[m[33m ([m[1;33mtag: jalon-1[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: yahmiy <yanis.yahmi2002@gmail.com>
+Date:   Tue Nov 15 17:20:06 2022 +0100
+
+    Ajout de AUTHORS.md
