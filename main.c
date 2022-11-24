@@ -1,7 +1,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <unistd.h>
+#include <limits.h>
 #include "cd.h"
+#include "pwd.h"
 #include "split_string.h"
 
 #define MaxLenPrompt 30
@@ -23,6 +25,8 @@ static int isNumber(char *str){
 }
 
 int main(int argc, char **argv){
+	PWD = string_new(PATH_MAX);
+	OLD_PATH = string_new(PATH_MAX);
 	struct string *PROMPT = string_new(MaxLenPrompt + 1);
 	char *args , **splited_args;
 	int len_Splited_args;
@@ -31,8 +35,8 @@ int main(int argc, char **argv){
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
-	PWD = string_new(600);
-	string_append(PWD, "/home/kali/Desktop/projetsys/sys5-slash");
+	maj_PWD_P();
+	string_cpy(OLD_PATH, PWD);
 	if (PROMPT == NULL){
 		perror("string_new : ");
 		exit(EXIT_FAILURE);
@@ -62,9 +66,14 @@ int main(int argc, char **argv){
 			}
 			else{
 				if (strcmp(splited_args[0], "cd") == 0){
-					
+					if (slash_cd(splited_args+1, len_Splited_args-1) == 0){
+						write(STDERR_FILENO, PWD->data, PWD->length);
+						write(STDERR_FILENO, "\n", 1);
+					}
 				}else if (strcmp(splited_args[0], "pwd") == 0){
-
+					slash_pwd(splited_args+1, len_Splited_args-1);
+					write(STDERR_FILENO, PWD->data, PWD->length);
+					write(STDERR_FILENO, "\n", 1);
 				}else if (strcmp(splited_args[0], "exit") == 0){
 					if (len_Splited_args == 2){
 							if (isNumber(splited_args[1])){

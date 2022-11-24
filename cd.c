@@ -39,38 +39,26 @@ void maj_PWD_P(){
 
 int slash_cd(char **args, int len){
   char mode = 'L';
-  int opt;
-
-/*  
-  while((opt = getopt(len, args, "L:P")) != -1){
-    switch(opt) {
-      case 'L' : mode = 'L'; break;
-      case 'P' : mode = 'P'; break;
-      default : 
-	fprintf(stderr, "cd : utilisation : cd [-L | -P] [ref | -]");
-	return 1;
-    }
-  }
-  
-  printf("%c\n", mode); 
-*/
   if(len > 1){
     perror("Too many arguments");
     return -1;
   }
   if(len > 0){
     if(strcmp(args[0], "-") == 0){
-      chdir(OLD_PATH->data); 
-      if(mode == 'P'){
-	 string_cpy(OLD_PATH, PWD);
-         maj_PWD_P();
-      }
-      else{
-	char *ref = malloc(OLD_PATH->capacity);
-	strcpy(ref, OLD_PATH->data);
-        string_cpy(OLD_PATH, PWD);
+        chdir(OLD_PATH->data); 
+        if(mode == 'P'){
+           init_String(OLD_PATH);
+  	       string_append(OLD_PATH, PWD->data);
+           maj_PWD_P();
+        }
+        else{
+  	    char *ref = malloc(OLD_PATH->capacity);
+	      strcpy(ref, OLD_PATH->data);
+        init_String(OLD_PATH);
+        string_append(OLD_PATH, PWD->data);
+        init_String(PWD);
         maj_PWD_L(ref);
-	free(ref);
+  	    free(ref);
       }
     }
     else{
@@ -79,19 +67,22 @@ int slash_cd(char **args, int len){
         return -1;
       }
       if(mode == 'P'){
-        string_cpy(OLD_PATH, PWD);
+        init_String(OLD_PATH);
+        string_append(OLD_PATH, PWD->data);
         maj_PWD_P();
       }
       else{
-        string_cpy(OLD_PATH, PWD);
+        init_String(OLD_PATH);
+        string_append(OLD_PATH, PWD->data);
         if(maj_PWD_L(args[0]) == -1) {
-	  maj_PWD_P(); 
-	}
+	         maj_PWD_P(); 
+	      }
       }
     }
   }
   else{
     chdir(getenv("HOME"));
+    maj_PWD_P();
   }
 
   return 0;
