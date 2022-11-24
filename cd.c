@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "mystring.h"
 #include "split_string.h"
 #include "cd.h"
+#include "pwd.h"
 
-struct string * PWD;
-struct string * OLD_PATH;
+struct string * PWD = NULL;
+struct string * OLD_PATH = NULL;
 
 int maj_PWD_L(char *ref){
   char **splited_ref = malloc(sizeof(char*) * 4096);
@@ -43,28 +44,19 @@ void maj_PWD_P(){
 }
 
 int slash_cd(char **args, int len){
-  char mode = 'L';
+  char mode;
   int opt;
-
-/*  
-  while((opt = getopt(len, args, "L:P")) != -1){
-    switch(opt) {
-      case 'L' : mode = 'L'; break;
-      case 'P' : mode = 'P'; break;
-      default : 
-	fprintf(stderr, "cd : utilisation : cd [-L | -P] [ref | -]");
-	return 1;
-    }
-  }
   
-  printf("%c\n", mode); 
-*/
-  if(len > 1){
+  if(parse_args(args, len, &opt, &mode) == -1){
+    write(STDERR_FILENO, "slash: cd: invalid option\n", strlen("slash: cd: invalid option\n"));
+  }
+
+  if(len - opt > 1){
     perror("Too many arguments");
     return -1;
   }
-  if(len > 0){
-    if(strcmp(args[0], "-") == 0){
+  if(len - opt > 0){
+    if(strcmp(args[opt], "-") == 0){
       chdir(OLD_PATH->data); 
       if(mode == 'P'){
 	 string_cpy(OLD_PATH, PWD);
@@ -79,7 +71,7 @@ int slash_cd(char **args, int len){
       }
     }
     else{
-      if(chdir(args[0]) == -1){
+      if(chdir(args[opt]) == -1){
         perror("cd");
         return -1;
       }
@@ -89,11 +81,11 @@ int slash_cd(char **args, int len){
       }
       else{
         string_cpy(OLD_PATH, PWD);
-	if(args[0][0] == '/'){
+	if(args[opt][0] == '/'){
 	  string_truncate(PWD, PWD->length);
 	  string_append(PWD, "/");
 	}
-        if(maj_PWD_L(args[0]) == -1) {
+        if(maj_PWD_L(args[opt]) == -1) {
 	  maj_PWD_P(); 
 	}
       }
@@ -105,7 +97,7 @@ int slash_cd(char **args, int len){
 
   return 0;
 }
-
+/*
 int main(){
   int len;
 
@@ -127,3 +119,4 @@ int main(){
   }
   return 0;
 }
+*/
