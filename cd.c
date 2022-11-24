@@ -1,9 +1,11 @@
-#include "mystring.h"
-#include "split_string.h"
-#include "cd.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
 #include <string.h>
+#include "mystring.h"
+#include "split_string.h"
+#include "cd.h"
+#include "pwd.h"
 
 struct string * PWD = NULL;
 struct string * OLD_PATH = NULL;
@@ -39,31 +41,36 @@ void maj_PWD_P(){
 }
 
 int slash_cd(char **args, int len){
-  char mode = 'L';
-  if(len > 1){
-    //perror("Too many arguments");
+  char mode;
+  int opt;
+  
+  if(parse_args(args, len, &opt, &mode) == -1){
+    write(STDERR_FILENO, "slash: cd: invalid option\n", strlen("slash: cd: invalid option\n"));
     return -1;
   }
-  if(len > 0){
-    if(strcmp(args[0], "-") == 0){
-        chdir(OLD_PATH->data); 
-        if(mode == 'P'){
-           init_String(OLD_PATH);
-  	       string_append(OLD_PATH, PWD->data);
-           maj_PWD_P();
-        }
-        else{
-  	    char *ref = malloc(OLD_PATH->capacity);
-	      strcpy(ref, OLD_PATH->data);
-        init_String(OLD_PATH);
-        string_append(OLD_PATH, PWD->data);
-        init_String(PWD);
-        maj_PWD_L(ref);
-  	    free(ref);
+
+  if(len - opt > 1){
+    write(STDERR_FILENO, "cd : Too many arguments\n", strlen("cd : Too many arguments\n"));
+    return -1;
+  }
+  if(len - opt > 0){
+    if(strcmp(args[opt], "-") == 0){
+      chdir(OLD_PATH->data); 
+      if(mode == 'P'){
+	        init_String(OLD_PATH);
+          string_append(OLD_PATH, PWD->data);
+          maj_PWD_P();
+      }
+      else{
+	        char *ref = malloc(OLD_PATH->capacity);
+          strcpy(ref, OLD_PATH->data);
+          init_String(OLD_PATH);
+          string_append(OLD_PATH, PWD->data);
+          init_String(PWD);
       }
     }
     else{
-      if(chdir(args[0]) == -1){
+      if(chdir(args[opt]) == -1){
         write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
         return -1;
       }
@@ -75,11 +82,11 @@ int slash_cd(char **args, int len){
       else{
         init_String(OLD_PATH);
         string_append(OLD_PATH, PWD->data);
-    	if(args[0][0] == '/'){
+    	if(args[opt][0] == '/'){
     	  string_truncate(PWD, PWD->length);
     	  string_append(PWD, "/");
     	}
-        if(maj_PWD_L(args[0]) == -1) {
+        if(maj_PWD_L(args[opt]) == -1) {
 	         maj_PWD_P(); 
 	      }
       }
@@ -92,4 +99,3 @@ int slash_cd(char **args, int len){
 
   return 0;
 }
-

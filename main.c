@@ -5,6 +5,7 @@
 #include "cd.h"
 #include "pwd.h"
 #include "split_string.h"
+#include "mystring.h"
 
 #define MaxLenPrompt 30
 #define MAX_ARGS_NUMBER 4096
@@ -82,9 +83,10 @@ int main(int argc, char **argv){
 						write(STDERR_FILENO, "\n", 1);
 					}
 				}else if (strcmp(splited_args[0], "pwd") == 0){
-					slash_pwd(splited_args+1, len_Splited_args-1);
-					write(STDERR_FILENO, PWD->data, PWD->length);
-					write(STDERR_FILENO, "\n", 1);
+					if (slash_pwd(splited_args+1, len_Splited_args-1) != -1){
+						write(STDERR_FILENO, PWD->data, PWD->length);
+						write(STDERR_FILENO, "\n", 1);
+					}
 				}else if (strcmp(splited_args[0], "exit") == 0){
 					if (len_Splited_args == 2){
 							if (isNumber(splited_args[1])){
