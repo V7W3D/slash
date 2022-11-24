@@ -59,7 +59,7 @@ int slash_cd(char **args, int len){
           maj_PWD_P();
       }
       else{
-	  char *ref = malloc(OLD_PATH->capacity);
+	  char *ref = malloc(OLD_PATH->length + 1);
           strcpy(ref, OLD_PATH->data);
           string_cpy(OLD_PATH, PWD);
           init_string(PWD);

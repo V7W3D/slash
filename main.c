@@ -105,6 +105,7 @@ int main(int argc, char **argv){
 					write(STDERR_FILENO, "command not found\n", 19);
 				}
 			}
+			free(args);
 		}
 	}
 }

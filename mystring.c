@@ -12,7 +12,7 @@ struct string * string_new(size_t capacity){
 	str_n->capacity = capacity;
 	str_n->length = 0;
 	str_n->data = malloc(capacity*sizeof(char));
-	*(str_n->data) = '\0';
+	memset(str_n->data, '\0', capacity);
 	return str_n;
 }
 

@@ -11,7 +11,7 @@ int split_string(char *string, const char *delimiters, char ***result){
   if(*result != NULL){	
     char *token = strtok(string, delimiters);
     while(token != NULL){
-      if((*(*result + count) = malloc(strlen(token))) == NULL){
+      if((*(*result + count) = malloc(strlen(token) + 1)) == NULL){
         free_splited_string(*result, count + 1);
         break;
       }
