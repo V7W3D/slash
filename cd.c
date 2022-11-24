@@ -11,15 +11,15 @@ struct string * PWD = NULL;
 struct string * OLD_PATH = NULL;
 
 void maj_PWD_L(char *ref){
-  char **splited_ref = malloc(sizeof(char*) * 4096);
-  int len = split_string(ref, "/", splited_ref);
+  char **splited_ref = NULL;
+  int len = split_string(ref, "/", &splited_ref);
   int nchars;
   for(int i=0; i<len; i++){
     if(strcmp(splited_ref[i], "..") == 0){
       if(PWD->length > 1){
         nchars = 0;
         for(int i = PWD->length; PWD->data[i] != '/'; i--) nchars++;
-        string_truncate(PWD, nchars);
+              string_truncate(PWD, nchars);
 	      if(PWD->length == 0) string_append(PWD, "/");
       }
     }
@@ -59,11 +59,12 @@ int slash_cd(char **args, int len){
           maj_PWD_P();
       }
       else{
-	        char *ref = malloc(OLD_PATH->capacity);
+	  char *ref = malloc(OLD_PATH->capacity);
           strcpy(ref, OLD_PATH->data);
           string_cpy(OLD_PATH, PWD);
           init_string(PWD);
           string_append(PWD, ref);
+	  free(ref);
       }
     }
     else{
@@ -77,10 +78,10 @@ int slash_cd(char **args, int len){
       }
       else{
         string_cpy(OLD_PATH, PWD);
-    	  if(args[opt][0] == '/'){
+    	if(args[opt][0] == '/'){
       	  string_truncate(PWD, PWD->length);
       	  string_append(PWD, "/");
-    	  }
+    	}
         maj_PWD_L(args[opt]);
         if(chdir(PWD->data) == -1){
           maj_PWD_P();

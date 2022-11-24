@@ -41,11 +41,7 @@ int main(int argc, char **argv){
 	struct string *PROMPT = string_new(MaxLenPrompt + 1);
 	char *args , **splited_args;
 	int len_Splited_args;
-	splited_args = malloc(sizeof(char*));
-	if (splited_args == NULL){
-		write(STDERR_FILENO, "erreur : malloc", 16);
-		exit(EXIT_FAILURE);
-	}
+	splited_args = NULL;
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
 	if (PROMPT == NULL){
@@ -72,7 +68,7 @@ int main(int argc, char **argv){
 			//add the command line to the history
 			addLigneToHistory(PROMPT, args);
 			//-----------------------------------
-			len_Splited_args = split_string(args, " ", splited_args);
+			len_Splited_args = split_string(args, " ", &splited_args);
 			if (len_Splited_args > MAX_ARGS_NUMBER){
 				write(STDERR_FILENO, "\nMAX_ARGS_NUMBER\n", 17);
 			}else if(!checkArgs(splited_args, len_Splited_args)){
@@ -88,6 +84,8 @@ int main(int argc, char **argv){
 								int exitCode = atoi(splited_args[1]);
 								free(args);
 								string_delete(PROMPT);
+								string_delete(PWD);
+								string_delete(OLD_PATH);
 								free_splited_string(splited_args, len_Splited_args);
 								exit(exitCode);
 							}else{
@@ -95,6 +93,8 @@ int main(int argc, char **argv){
 							}
 						}else if (len_Splited_args == 1){
 							free(args);
+							string_delete(PWD);
+							string_delete(OLD_PATH);
 							string_delete(PROMPT);
 							free_splited_string(splited_args, len_Splited_args);
 							exit(exit_code);
