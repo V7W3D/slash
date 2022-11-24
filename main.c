@@ -55,12 +55,13 @@ int main(int argc, char **argv){
 		init_String(PROMPT);
 		len_Splited_args = 0;
 		args = NULL;
-		if (PWD->length + 2 <= MaxLenPrompt){
+		if (PWD->length + 5 <= MaxLenPrompt){
+			string_append(PROMPT, "[0]");
 			string_append(PROMPT, PWD->data);
 			string_append(PROMPT, "$");
 		}else{
-			string_n_copy_from_end(PROMPT, PWD, MaxLenPrompt-1);
-			insert_prefixe(PROMPT, "...", 3);
+			string_n_copy_from_end(PROMPT, PWD, MaxLenPrompt-2);
+			insert_prefixe(PROMPT, "[0]...", 6);
 			string_append(PROMPT, "$");
 		}
 		write(STDERR_FILENO, PROMPT->data, PROMPT->length);
