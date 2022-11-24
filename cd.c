@@ -10,7 +10,7 @@
 struct string * PWD = NULL;
 struct string * OLD_PATH = NULL;
 
-int maj_PWD_L(char *ref){
+void maj_PWD_L(char *ref){
   char **splited_ref = malloc(sizeof(char*) * 4096);
   int len = split_string(ref, "/", splited_ref);
   int nchars;
@@ -22,7 +22,6 @@ int maj_PWD_L(char *ref){
         string_truncate(PWD, nchars);
 	      if(PWD->length == 0) string_append(PWD, "/");
       }
-      else return -1;
     }
     else{
       if(strcmp(splited_ref[i], ".") != 0){
@@ -32,7 +31,6 @@ int maj_PWD_L(char *ref){
     }
   }
   free_splited_string(splited_ref, len);
-  return 0;
 }
 
 void maj_PWD_P(){
@@ -46,49 +44,47 @@ int slash_cd(char **args, int len){
   
   if(parse_args(args, len, &opt, &mode) == -1){
     write(STDERR_FILENO, "slash: cd: invalid option\n", strlen("slash: cd: invalid option\n"));
-    return -1;
+    return 1;
   }
 
   if(len - opt > 1){
     write(STDERR_FILENO, "cd : Too many arguments\n", strlen("cd : Too many arguments\n"));
-    return -1;
+    return 1;
   }
   if(len - opt > 0){
     if(strcmp(args[opt], "-") == 0){
       chdir(OLD_PATH->data); 
       if(mode == 'P'){
-	        init_String(OLD_PATH);
-          string_append(OLD_PATH, PWD->data);
+          string_cpy(OLD_PATH, PWD);
           maj_PWD_P();
       }
       else{
 	        char *ref = malloc(OLD_PATH->capacity);
           strcpy(ref, OLD_PATH->data);
-          init_String(OLD_PATH);
-          string_append(OLD_PATH, PWD->data);
-          init_String(PWD);
+          string_cpy(OLD_PATH, PWD);
+          init_string(PWD);
+          string_append(PWD, ref);
       }
     }
     else{
-      if(chdir(args[opt]) == -1){
+      if (chdir(args[opt]) == -1){
         write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
-        return -1;
+        return 1;
       }
       if(mode == 'P'){
-        init_String(OLD_PATH);
-        string_append(OLD_PATH, PWD->data);
+        string_cpy(OLD_PATH, PWD);
         maj_PWD_P();
       }
       else{
-        init_String(OLD_PATH);
-        string_append(OLD_PATH, PWD->data);
-    	if(args[opt][0] == '/'){
-    	  string_truncate(PWD, PWD->length);
-    	  string_append(PWD, "/");
-    	}
-        if(maj_PWD_L(args[opt]) == -1) {
-	         maj_PWD_P(); 
-	      }
+        string_cpy(OLD_PATH, PWD);
+    	  if(args[opt][0] == '/'){
+      	  string_truncate(PWD, PWD->length);
+      	  string_append(PWD, "/");
+    	  }
+        maj_PWD_L(args[opt]);
+        if(chdir(PWD->data) == -1){
+          maj_PWD_P();
+        }
       }
     }
   }

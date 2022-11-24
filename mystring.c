@@ -57,7 +57,7 @@ void string_cpy (struct string * dest, struct string * src){
 		}
 		dest->capacity = src->capacity;
 	}
-	strcpy(dest->data, src->data);
+	memmove(dest->data, src->data, src->length);
 	dest->length = src->length;
 }
 
@@ -81,7 +81,7 @@ int insert_prefixe(struct string *str, const char *prefixe, const int sizePrefix
 	return 0;
 }
 
-void init_String(struct string * str){
+void init_string(struct string * str){
 	*(str->data) = '\0';
 	str->length = 0;
 }

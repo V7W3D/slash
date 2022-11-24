@@ -34,7 +34,8 @@ static void addLigneToHistory(struct string *PROMPT,char *command){
 }
 
 int main(int argc, char **argv){
-	dup2(2, 1);
+	int exit_code = 0;
+	rl_outstream = stderr;
 	PWD = string_new(PATH_MAX);
 	OLD_PATH = string_new(PATH_MAX);
 	struct string *PROMPT = string_new(MaxLenPrompt + 1);
@@ -52,22 +53,21 @@ int main(int argc, char **argv){
 		exit(EXIT_FAILURE);
 	}
 	while(1){
-		init_String(PROMPT);
+		init_string(PROMPT);
 		len_Splited_args = 0;
 		args = NULL;
-		if (PWD->length + 5 <= MaxLenPrompt){
+		if (PWD->length + 6 <= MaxLenPrompt){
 			string_append(PROMPT, "[0]");
 			string_append(PROMPT, PWD->data);
-			string_append(PROMPT, "$");
+			string_append(PROMPT, "$ ");
 		}else{
 			string_n_copy_from_end(PROMPT, PWD, MaxLenPrompt-2);
 			insert_prefixe(PROMPT, "[0]...", 6);
-			string_append(PROMPT, "$");
+			string_append(PROMPT, "$ ");
 		}
-		write(STDERR_FILENO, PROMPT->data, PROMPT->length);
-		args = readline(" ");
+		args = readline(PROMPT->data);
 		if (args == NULL){
-			exit(EXIT_FAILURE);
+			exit(EXIT_SUCCESS);
 		}else if (strlen(args) > 0){
 			//add the command line to the history
 			addLigneToHistory(PROMPT, args);
@@ -79,15 +79,9 @@ int main(int argc, char **argv){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
 				if (strcmp(splited_args[0], "cd") == 0){
-					if (slash_cd(splited_args+1, len_Splited_args-1) == 0){
-						write(STDERR_FILENO, PWD->data, PWD->length);
-						write(STDERR_FILENO, "\n", 1);
-					}
+					exit_code = slash_cd(splited_args+1, len_Splited_args-1);
 				}else if (strcmp(splited_args[0], "pwd") == 0){
-					if (slash_pwd(splited_args+1, len_Splited_args-1) != -1){
-						write(STDERR_FILENO, PWD->data, PWD->length);
-						write(STDERR_FILENO, "\n", 1);
-					}
+					exit_code = slash_pwd(splited_args+1, len_Splited_args-1);
 				}else if (strcmp(splited_args[0], "exit") == 0){
 					if (len_Splited_args == 2){
 							if (isNumber(splited_args[1])){
@@ -103,7 +97,7 @@ int main(int argc, char **argv){
 							free(args);
 							string_delete(PROMPT);
 							free_splited_string(splited_args, len_Splited_args);
-							exit(EXIT_SUCCESS);
+							exit(exit_code);
 						}else{
 							write(STDERR_FILENO, "exit: too many arguments\n", 25);
 						}

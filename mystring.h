@@ -30,7 +30,7 @@ void string_cpy (struct string * dest, struct string * src);
 
 int string_n_copy_from_end(struct string *dest, struct string *src, const int nBbytes);
 
-void init_String(struct string * str);
+void init_string(struct string * str);
 
 int insert_prefixe(struct string *str, const char *prefixe, const int sizePrefixe);
 
