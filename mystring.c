@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
-
+#include <limits.h>
+#include <unistd.h>
 #include "mystring.h"
+
 
 // TODO: implémenter les fonctions déclarées dans mystring.h
 
@@ -50,7 +52,7 @@ void string_truncate (struct string * str, size_t nchars){
 void string_cpy (struct string * dest, struct string * src){
 	if(src->length + 1 > dest->capacity){
 		if (realloc(dest->data, sizeof(src->data)) == NULL){
-			perror("realloc : ");
+			write(STDERR_FILENO, "error : realloc", strlen("error : realloc"));
 			return;
 		}
 		dest->capacity = src->capacity;

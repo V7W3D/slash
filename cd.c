@@ -18,13 +18,14 @@ int maj_PWD_L(char *ref){
         nchars = 0;
         for(int i = PWD->length; PWD->data[i] != '/'; i--) nchars++;
         string_truncate(PWD, nchars);
+	      if(PWD->length == 0) string_append(PWD, "/");
       }
       else return -1;
     }
     else{
       if(strcmp(splited_ref[i], ".") != 0){
         if(strcmp(PWD->data, "/") != 0) string_append(PWD, "/");
-	string_append(PWD, splited_ref[i]);
+	      string_append(PWD, splited_ref[i]);
       }
     }
   }
@@ -40,7 +41,7 @@ void maj_PWD_P(){
 int slash_cd(char **args, int len){
   char mode = 'L';
   if(len > 1){
-    perror("Too many arguments");
+    //perror("Too many arguments");
     return -1;
   }
   if(len > 0){
@@ -63,7 +64,7 @@ int slash_cd(char **args, int len){
     }
     else{
       if(chdir(args[0]) == -1){
-        perror("cd");
+        write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
         return -1;
       }
       if(mode == 'P'){
@@ -74,6 +75,10 @@ int slash_cd(char **args, int len){
       else{
         init_String(OLD_PATH);
         string_append(OLD_PATH, PWD->data);
+    	if(args[0][0] == '/'){
+    	  string_truncate(PWD, PWD->length);
+    	  string_append(PWD, "/");
+    	}
         if(maj_PWD_L(args[0]) == -1) {
 	         maj_PWD_P(); 
 	      }
