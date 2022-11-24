@@ -19,7 +19,7 @@ void maj_PWD_L(char *ref){
       if(PWD->length > 1){
         nchars = 0;
         for(int i = PWD->length; PWD->data[i] != '/'; i--) nchars++;
-              string_truncate(PWD, nchars);
+        string_truncate(PWD, nchars);
 	      if(PWD->length == 0) string_append(PWD, "/");
       }
     }
@@ -30,7 +30,7 @@ void maj_PWD_L(char *ref){
       }
     }
   }
-  free_splited_string(splited_ref, len);
+  free_splited_string(splited_ref);
 }
 
 void maj_PWD_P(){
@@ -55,16 +55,16 @@ int slash_cd(char **args, int len){
     if(strcmp(args[opt], "-") == 0){
       chdir(OLD_PATH->data); 
       if(mode == 'P'){
-          string_cpy(OLD_PATH, PWD);
-          maj_PWD_P();
+        string_cpy(OLD_PATH, PWD);
+        maj_PWD_P();
       }
       else{
-	  char *ref = malloc(OLD_PATH->length + 1);
-          strcpy(ref, OLD_PATH->data);
-          string_cpy(OLD_PATH, PWD);
-          init_string(PWD);
-          string_append(PWD, ref);
-	  free(ref);
+	      char *ref = malloc(OLD_PATH->length + 1);
+        strcpy(ref, OLD_PATH->data);
+        string_cpy(OLD_PATH, PWD);
+        init_string(PWD);
+        string_append(PWD, ref);
+	      free(ref);
       }
     }
     else{
@@ -78,10 +78,10 @@ int slash_cd(char **args, int len){
       }
       else{
         string_cpy(OLD_PATH, PWD);
-    	if(args[opt][0] == '/'){
-      	  string_truncate(PWD, PWD->length);
-      	  string_append(PWD, "/");
-    	}
+        if(args[opt][0] == '/'){
+          string_truncate(PWD, PWD->length);
+          string_append(PWD, "/");
+        }
         maj_PWD_L(args[opt]);
         if(chdir(PWD->data) == -1){
           maj_PWD_P();

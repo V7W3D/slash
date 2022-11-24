@@ -15,9 +15,9 @@ int split_string(char *string, const char *delimiters, char **result){
   return count;
 }
 
-void free_splited_string(char **splited_string, int len){
+void free_splited_string(char **splited_string){
   int i = 0;
-  while(splited_string[i] && i<len){
+  while(splited_string[i] && i<PATH_MAX){
     free(splited_string[i]);
     i++;
   }

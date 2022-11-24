@@ -62,14 +62,14 @@ void string_cpy (struct string * dest, struct string * src){
 }
 
 
-int string_n_copy_from_end(struct string *dest, struct string *src, int nBbytes){
-	if (nBbytes > dest->capacity){
+int string_copy_from_end(struct string *dest, struct string *src, int n){
+	if (n > dest->capacity){
 		return -1;
 	}
 	*(dest->data) = '\0';
-	memmove(dest->data, src->data + src->length - nBbytes, nBbytes);
-	*(dest->data + nBbytes) = '\0';
-	dest->length = nBbytes;
+	memmove(dest->data, src->data + src->length - n, n);
+	*(dest->data + n) = '\0';
+	dest->length = n;
 	return 0;
 }
 

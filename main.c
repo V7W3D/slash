@@ -7,7 +7,7 @@
 #include "split_string.h"
 #include "mystring.h"
 
-#define MaxLenPrompt 30
+#define MAXLENPROMPT 30
 #define MAX_ARGS_NUMBER 4096
 #define MAX_ARGS_STRLEN 4096
 
@@ -38,7 +38,7 @@ int main(int argc, char **argv){
 	rl_outstream = stderr;
 	PWD = string_new(PATH_MAX);
 	OLD_PATH = string_new(PATH_MAX);
-	struct string *PROMPT = string_new(MaxLenPrompt + 1);
+	struct string *PROMPT = string_new(MAXLENPROMPT + 1);
 	char *args , **splited_args;
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
@@ -48,14 +48,14 @@ int main(int argc, char **argv){
 	}
 	while(1){
 		init_string(PROMPT);
-		int len_Splited_args;
+		int len_splited_args;
 		args = NULL;
-		if (PWD->length + 6 <= MaxLenPrompt){
+		if (PWD->length + 6 <= MAXLENPROMPT){
 			string_append(PROMPT, "[0]");
 			string_append(PROMPT, PWD->data);
 			string_append(PROMPT, "$ ");
 		}else{
-			string_n_copy_from_end(PROMPT, PWD, MaxLenPrompt-2);
+			string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
 			insert_prefixe(PROMPT, "[0]...", 6);
 			string_append(PROMPT, "$ ");
 		}
@@ -67,35 +67,35 @@ int main(int argc, char **argv){
 			addLigneToHistory(PROMPT, args);
 			//-----------------------------------
 			splited_args = allocate_splited_string();
-			len_Splited_args = split_string(args, " ", splited_args);
-			if (len_Splited_args > MAX_ARGS_NUMBER){
+			len_splited_args = split_string(args, " ", splited_args);
+			if (len_splited_args > MAX_ARGS_NUMBER){
 				write(STDERR_FILENO, "\nMAX_ARGS_NUMBER\n", 17);
-			}else if(!checkArgs(splited_args, len_Splited_args)){
+			}else if(!checkArgs(splited_args, len_splited_args)){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
 				if (strcmp(splited_args[0], "cd") == 0){
-					exit_code = slash_cd(splited_args+1, len_Splited_args-1);
+					exit_code = slash_cd(splited_args+1, len_splited_args-1);
 				}else if (strcmp(splited_args[0], "pwd") == 0){
-					exit_code = slash_pwd(splited_args+1, len_Splited_args-1);
+					exit_code = slash_pwd(splited_args+1, len_splited_args-1);
 				}else if (strcmp(splited_args[0], "exit") == 0){
-					if (len_Splited_args == 2){
+					if (len_splited_args == 2){
 							if (isNumber(splited_args[1])){
 								int exitCode = atoi(splited_args[1]);
 								free(args);
 								string_delete(PROMPT);
 								string_delete(PWD);
 								string_delete(OLD_PATH);
-								free_splited_string(splited_args, PATH_MAX);
+								free_splited_string(splited_args);
 								exit(exitCode);
 							}else{
 								write(STDERR_FILENO, "exit : error must be an integer\n", 32);
 							}
-						}else if (len_Splited_args == 1){
+						}else if (len_splited_args == 1){
 							free(args);
 							string_delete(PWD);
 							string_delete(OLD_PATH);
 							string_delete(PROMPT);
-							free_splited_string(splited_args, len_Splited_args);
+							free_splited_string(splited_args);
 							exit(exit_code);
 						}else{
 							write(STDERR_FILENO, "exit: too many arguments\n", 25);
@@ -105,7 +105,7 @@ int main(int argc, char **argv){
 				}
 			}
 			free(args);
-			free_splited_string(splited_args, PATH_MAX);
+			free_splited_string(splited_args);
 		}
 	}
 }

@@ -28,7 +28,7 @@ void string_truncate (struct string * str, size_t nchars);
 
 void string_cpy (struct string * dest, struct string * src);
 
-int string_n_copy_from_end(struct string *dest, struct string *src, const int nBbytes);
+int string_copy_from_end(struct string *dest, struct string *src, const int n);
 
 void init_string(struct string * str);
 
