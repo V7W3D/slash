@@ -11,15 +11,26 @@
 #define MAXLENPROMPT 30
 #define MAX_ARGS_NUMBER 4096
 #define MAX_ARGS_STRLEN 4096
+char * INTERN_COMMAND[3] =  {"pwd","cd","exit"};
 
-static int checkArgs(char **args, int len){
+int is_intern(char *str){
+	for(int i = 0; i<3; i++){
+		if(strcmp(str,*(INTERN_COMMAND + i)) == 0){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
+int check_args(char **args, int len){
 	for (int i=0;i<len;i++){
 		if (strlen(args[i]) > MAX_ARGS_STRLEN) return 0;
 	}
 	return 1;
 }
 
-static int isNumber(char *str){
+int is_number(char *str){
 	for (int i=0;i<strlen(str);i++){
 		if (!isdigit(str[i])) return 0;
 	}
@@ -64,16 +75,17 @@ int main(int argc, char **argv){
 			len_splited_args = split_string(args, " ", splited_args);
 			if (len_splited_args > MAX_ARGS_NUMBER){
 				write(STDERR_FILENO, "\nMAX_ARGS_NUMBER\n", 17);
-			}else if(!checkArgs(splited_args, len_splited_args)){
+			}else if(!check_args(splited_args, len_splited_args)){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
-				if (strcmp(splited_args[0], "cd") == 0){
-					exit_code = slash_cd(splited_args+1, len_splited_args-1);
-				}else if (strcmp(splited_args[0], "pwd") == 0){
-					exit_code = slash_pwd(splited_args+1, len_splited_args-1);
-				}else if (strcmp(splited_args[0], "exit") == 0){
-					if (len_splited_args == 2){
-							if (isNumber(splited_args[1])){
+				if(is_intern(splited_args[0]) == 0){// Commande interne
+					if (strcmp(splited_args[0], "cd") == 0){
+						exit_code = slash_cd(splited_args+1, len_splited_args-1);
+					}else if (strcmp(splited_args[0], "pwd") == 0){
+						exit_code = slash_pwd(splited_args+1, len_splited_args-1);
+					}else{
+						if (len_splited_args == 2){
+							if (is_number(splited_args[1])){
 								int exitCode = atoi(splited_args[1]);
 								free(args);
 								string_delete(PROMPT);
@@ -94,8 +106,22 @@ int main(int argc, char **argv){
 						}else{
 							write(STDERR_FILENO, "exit: too many arguments\n", 25);
 						}
-				}else{
-					write(STDERR_FILENO, "command not found\n", 19);
+					}
+				}
+				else{
+					switch (fork())
+					{
+					case -1:
+						write(STDERR_FILENO,"fork()", strlen("fork()"));
+						break;
+					case 0:
+						execvp(splited_args[0], splited_args);
+						break;
+					
+					default:
+						wait(NULL);
+						break;
+					}
 				}
 			}
 			free(args);

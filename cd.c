@@ -69,25 +69,29 @@ int slash_cd(char **args, int len){
       }
     }
     else{
-      if (chdir(args[opt]) == -1){
-        chdir(args[opt]);
-        write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
-        return 1;
-      }
       if(mode == 'P'){
+	if (chdir(args[opt]) == -1){
+          write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
+	  return 1;
+	}
         string_cpy(OLD_PATH, PWD);
         maj_PWD_P();
       }
       else{
-        string_cpy(OLD_PATH, PWD);
+	string_cpy(OLD_PATH, PWD);
+	int tmp = chdir(args[opt]);
         if(args[opt][0] == '/'){
           string_truncate(PWD, PWD->length);
           string_append(PWD, "/");
         }
         maj_PWD_L(args[opt]);
-        if(chdir(PWD->data) == -1){
+        if(tmp != -1 && chdir(PWD->data) == -1){
           maj_PWD_P();
-        }
+	}
+	if (tmp == -1 && chdir(PWD->data) == -1){
+          write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
+	  return 1;
+	}
       }
     }
   }
