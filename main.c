@@ -2,6 +2,7 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <limits.h>
+#include <wait.h>
 #include "cd.h"
 #include "pwd.h"
 #include "split_string.h"
@@ -25,13 +26,6 @@ static int isNumber(char *str){
 	return 1;
 }
 
-static void addLigneToHistory(struct string *PROMPT,char *command){
-	struct string *linecmd = string_new(PROMPT->length + strlen(command) + 1);
-	string_append(linecmd, PROMPT->data);
-	string_append(linecmd, command);
-	add_history(linecmd->data);
-	string_delete(linecmd);
-}
 
 int main(int argc, char **argv){
 	int exit_code = 0;
@@ -64,7 +58,7 @@ int main(int argc, char **argv){
 			exit(EXIT_SUCCESS);
 		}else if (strlen(args) > 0){
 			//add the command line to the history
-			addLigneToHistory(PROMPT, args);
+			add_history(args);
 			//-----------------------------------
 			splited_args = allocate_splited_string();
 			len_splited_args = split_string(args, " ", splited_args);

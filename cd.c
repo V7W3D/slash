@@ -6,6 +6,7 @@
 #include "split_string.h"
 #include "cd.h"
 #include "pwd.h"
+#include <stdio.h>
 
 struct string * PWD = NULL;
 struct string * OLD_PATH = NULL;
@@ -69,6 +70,7 @@ int slash_cd(char **args, int len){
     }
     else{
       if (chdir(args[opt]) == -1){
+        chdir(args[opt]);
         write(STDERR_FILENO, "cd: no such file or directory\n", strlen("cd: no such file or directory\n"));
         return 1;
       }
