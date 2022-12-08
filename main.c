@@ -37,16 +37,23 @@ int is_number(char *str){
 	return 1;
 }
 
+void init(){
+	maj_PWD_P();
+	string_cpy(OLD_PATH, PWD);
+}
+
 
 int main(int argc, char **argv){
+	
 	int exit_code = 0;
 	rl_outstream = stderr;
 	PWD = string_new(PATH_MAX);
 	OLD_PATH = string_new(PATH_MAX);
 	struct string *PROMPT = string_new(MAXLENPROMPT + 1);
 	char *args , **splited_args;
-	maj_PWD_P();
-	string_cpy(OLD_PATH, PWD);
+	
+	init();
+	
 	if (PROMPT == NULL){
 		write(STDERR_FILENO, "erreur : string_new", 20);
 		exit(EXIT_FAILURE);
@@ -55,18 +62,22 @@ int main(int argc, char **argv){
 		init_string(PROMPT);
 		int len_splited_args;
 		args = NULL;
+		char *str1 = malloc(7*sizeof(char));
+		snprintf(str1,4, "[%d]", exit_code);
 		if (PWD->length + 6 <= MAXLENPROMPT){
-			string_append(PROMPT, "[0]");
+			string_append(PROMPT, str1);
 			string_append(PROMPT, PWD->data);
 			string_append(PROMPT, "$ ");
 		}else{
 			string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
-			insert_prefixe(PROMPT, "[0]...", 6);
+			snprintf(str1,7,"[%d]...",exit_code);
+			insert_prefixe(PROMPT, str1, 6);
 			string_append(PROMPT, "$ ");
 		}
+		free(str1);
 		args = readline(PROMPT->data);
 		if (args == NULL){
-			exit(EXIT_SUCCESS);
+			exit(exit_code);
 		}else if (strlen(args) > 0){
 			//add the command line to the history
 			add_history(args);
@@ -78,7 +89,7 @@ int main(int argc, char **argv){
 			}else if(!check_args(splited_args, len_splited_args)){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
-				if(is_intern(splited_args[0]) == 0){// Commande interne
+				if(is_intern(splited_args[0]) == 0){// Commandes internes
 					if (strcmp(splited_args[0], "cd") == 0){
 						exit_code = slash_cd(splited_args+1, len_splited_args-1);
 					}else if (strcmp(splited_args[0], "pwd") == 0){
@@ -86,13 +97,13 @@ int main(int argc, char **argv){
 					}else{
 						if (len_splited_args == 2){
 							if (is_number(splited_args[1])){
-								int exitCode = atoi(splited_args[1]);
+								int exit_parameter = atoi(splited_args[1]);
 								free(args);
 								string_delete(PROMPT);
 								string_delete(PWD);
 								string_delete(OLD_PATH);
 								free_splited_string(splited_args);
-								exit(exitCode);
+								exit(exit_parameter);
 							}else{
 								write(STDERR_FILENO, "exit : error must be an integer\n", 32);
 							}
@@ -108,7 +119,8 @@ int main(int argc, char **argv){
 						}
 					}
 				}
-				else{
+				else{ // Commandes externes
+					int status;
 					switch (fork())
 					{
 					case -1:
@@ -119,7 +131,8 @@ int main(int argc, char **argv){
 						break;
 					
 					default:
-						wait(NULL);
+						wait(&status);
+						exit_code = WEXITSTATUS(status);
 						break;
 					}
 				}
