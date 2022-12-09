@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
 static void get_suffix_after_star(char *ref, int *star_index, char *result){
 	int len_result = 0, saved_star_pos = *star_index;
 	while (*(*star_index+ref) != '\0' && *(*star_index+ref) != '/'){
@@ -29,6 +28,7 @@ static int end_with_suffix(char *string, char *suffix){
 	if (*end_string != *end_suffix) return 0;
 	return 1;
 }
+
 
 static void insert_2d_array(char **result, char *data, int *current_pos){
 	*result+current_pos = malloc(strlen(data)+1);
