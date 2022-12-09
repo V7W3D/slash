@@ -1,4 +1,4 @@
-include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -102,6 +102,7 @@ void star_aux(char *ref, char **result, int *current_pos){
 	}
 }
 
+//ref must be absolute
 char** star(char *ref){
 	char **result = malloc(PATH_MAX * sizeof(char*));
 	for (int i=0;i<PATH_MAX;i++) result[i] = NULL;
