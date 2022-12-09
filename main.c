@@ -7,35 +7,13 @@
 #include "pwd.h"
 #include "split_string.h"
 #include "mystring.h"
+#include "util.h"
 
 #define MAXLENPROMPT 30
 #define MAX_ARGS_NUMBER 4096
 #define MAX_ARGS_STRLEN 4096
+
 char * INTERN_COMMAND[3] =  {"pwd","cd","exit"};
-
-int is_intern(char *str){
-	for(int i = 0; i<3; i++){
-		if(strcmp(str,*(INTERN_COMMAND + i)) == 0){
-			return 0;
-		}
-	}
-	return 1;
-}
-
-
-int check_args(char **args, int len){
-	for (int i=0;i<len;i++){
-		if (strlen(args[i]) > MAX_ARGS_STRLEN) return 0;
-	}
-	return 1;
-}
-
-int is_number(char *str){
-	for (int i=0;i<strlen(str);i++){
-		if (!isdigit(str[i])) return 0;
-	}
-	return 1;
-}
 
 void init(){
 	maj_PWD_P();

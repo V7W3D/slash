@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -6,42 +5,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <limits.h>
+#include "star.h"
+#include "mystring.h"
+#include "cd.h"
+#include "util.h"
 
-static char* get_suffix_after_star(char *ref, int *star_index){
-	int len_result = -1, saved_star_pos = *star_index;
-	while (ref[*star_index] != '\0' && ref[*star_index] != '/'){
-		len_result++;
-		*star_index = *star_index + 1;
-	}
-	char *result = malloc(len_result+1);
-	memmove(result, ref+saved_star_pos+1, len_result);
-	*(result + len_result) = '\0';
-	*star_index = *star_index - 1;
-	return result;
-}
-
-static int end_with_suffix(char *string, char *suffix){
-	if (strlen(suffix) == 0) return 1;
-	char *end_string = string + strlen(string) - 1;
-	char *end_suffix = suffix + strlen(suffix) - 1;
-	int is_equal = 1;
-	while (end_suffix!=suffix && end_string != string){
-		if (*end_string != *end_suffix) return 0;
-		end_suffix--,
-		end_string--;
-	}
-	if (*end_string != *end_suffix) return 0;
-	return 1;
-}
-
-
-static void insert_2d_array(char **result, char *data, int *current_pos){
-	int pos = *current_pos;
-	result[pos] = malloc(strlen(data)+1);
-	memmove(result[pos], data, strlen(data));
-	result[pos][strlen(data)] = '\0';
-	*current_pos = *current_pos + 1;
-}
+char * STAR_PATH = malloc(PATH_MAX);
 
 //retourne le tableau des paths 
 void star_aux(char *ref, char **result, int *current_pos){
@@ -73,7 +42,7 @@ void star_aux(char *ref, char **result, int *current_pos){
 							memmove(entry_path+strlen(path), entry->d_name, strlen(entry->d_name));
 							*(entry_path + strlen(path)+strlen(entry->d_name)) = '\0';
 							if (stat(entry_path, &buf) != 0) return;
-							if (S_ISDIR(buf.st_mode)){
+							if (S_ISDIR(buf.st_mode) || S_ISLNK(buf.st_mode)){
 								char *updated_path = malloc(strlen(entry_path)+strlen(ref+index+1)+1);
 								memmove(updated_path, entry_path, strlen(entry_path));
 								memmove(updated_path + strlen(entry_path), ref+index+1, strlen(ref+index+1));
@@ -87,18 +56,16 @@ void star_aux(char *ref, char **result, int *current_pos){
 							free(entry_path);
 						}
 					}
+					closedir(dir);
 				}
 
-				closedir(dir);
 				free(path);
 				free(suffix);
 		}
 	}
 
-	if (!contain_star){
-		if (stat(ref, &buf) == 0){
-			insert_2d_array(result, ref, current_pos);
-		}
+	if (!contain_star && stat(ref, &buf) == 0){
+		insert_2d_array(result, ref, current_pos);
 	}
 }
 
@@ -109,4 +76,62 @@ char** star(char *ref){
 	int pos = 0;
 	star_aux(ref, result, &pos);
 	return result;
+}
+
+
+void double_star_aux(char * dir, char * target, char * chemin, char ** result, int len_result){ 
+    DIR * dirp = opendir(".");
+    struct dirent * entry;
+    char * dir_tmp = malloc(PATH_MAX);
+    strcpy(dir_tmp, dir);
+    if(dir[0] != ''){
+      strcat(STAR_PATH, "/");
+      strcat(dir);
+    }
+    if(chemin[0] != '' && chdir(chemin) != -1){
+      while((entry = readdir(dirp))){
+        if(strcmp(entry->d_name, target) == 0){
+	  result[len_result] = malloc(PATH_MAX);
+	  strcpy(result[len_resutl], dir);
+	  strcpy(result[len_result], chemin);
+	  strcpy(result[len_result], target);
+	  len_result++;
+	  break;
+	}
+      }
+      chdir(STAR_PATH);
+    }
+    while((entry = readdir(dirp))){
+      if(strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")){
+        if(DT_DIR(entry)){
+	  strcat(dir,entry->d_name);
+	  strcat(dir, "/");
+	  if(chdir(entry->d_name) != -1){
+            double_star(dir, target, chemin, result, len_result);
+	    strcpy(dir, dir_tmp);
+	    chdir("..");
+	  }	
+        }
+      }
+    }
+    free(dir_tmp);
+    closedir(dirp)
+}
+
+void double_star(char * target, char * chemin){
+  char ** result = malloc(PATH_MAX);
+  int i;
+  for(i = 0; i < PATH_MAX; i++){
+    result[i] = NULL;
+  }
+  char * dir = malloc(PATH_MAX);
+  strcpy(dir, "");
+  double_star_aux(dir, target, chemin, 0);
+  i = 0;
+  while(result[i]){
+    free(result[i]);
+    i++;
+  }
+  free(result);
+  free(dir);
 }
