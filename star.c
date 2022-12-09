@@ -66,12 +66,12 @@ void star_aux(char *ref, char **result, int *current_pos){
 						memmove(entry_path+strlen(path), entry->d_name, strlen(entry->d_name));
 						*(entry_path + strlen(path)+strlen(entry->d_name)) = '\0';
 						if (!lstat(entry_path, &buf)) return;
-						if (S_ISDIR(buf->mode) || S_ISLNK(buf->mode)){
+						if (S_ISDIR(buf.mode) || S_ISLNK(buf.mode)){
 							char *updated_path = malloc(strlen(entry_path)+strlen(ref+index)+1);
 							memmove(updated_path, entry_path, strlen(entry_path));
 							memmove(updated_path + strlen(entry_path), ref+index, strlen(ref)-index);
 							*(updated_path + strlen(entry_path)+strlen(ref+index)) = '\0';
-							star_aux(updated_path, result);
+							star_aux(updated_path, result, current_pos);
 							free(updated_path);
 						}else{
 							if (*(ref+index) != '\0') return;
@@ -87,4 +87,12 @@ void star_aux(char *ref, char **result, int *current_pos){
 		}
 	}
 	if (!contain_star) insert_2d_array(result, ref, current_pos);
+}
+
+char** star(char *ref){
+	char **result = malloc(sizeof(char*) * PATH_MAX);
+	for (int i=0;i<PATH_MAX;i++) *result+i = NULL;
+	int pos = 0;
+	star_aux(ref, result, &pos);
+	return result;
 }
