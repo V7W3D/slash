@@ -1,5 +1,5 @@
-#include<string.h>
-#include<stdlib.h>
+#include <string.h>
+#include <stdlib.h>
 #include "split_string.h"
 #include <limits.h>
 int split_string(char *string, const char *delimiters, char **result){
