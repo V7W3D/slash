@@ -10,7 +10,7 @@
 #include "cd.h"
 #include "util.h"
 
-char * STAR_PATH = malloc(PATH_MAX);
+//char * STAR_PATH = malloc(PATH_MAX);
 
 //retourne le tableau des paths 
 void star_aux(char *ref, char **result, int *current_pos){
@@ -78,7 +78,7 @@ char** star(char *ref){
 	return result;
 }
 
-
+/*
 void double_star_aux(char * dir, char * target, char * chemin, char ** result, int len_result){ 
     DIR * dirp = opendir(".");
     struct dirent * entry;
@@ -135,3 +135,4 @@ void double_star(char * target, char * chemin){
   free(result);
   free(dir);
 }
+*/

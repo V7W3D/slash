@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "util.h"
 
-static char* get_suffix_after_star(char *ref, int *star_index){
+char* get_suffix_after_star(char *ref, int *star_index){
 	int len_result = -1, saved_star_pos = *star_index;
 	while (ref[*star_index] != '\0' && ref[*star_index] != '/'){
 		len_result++;
@@ -15,7 +15,7 @@ static char* get_suffix_after_star(char *ref, int *star_index){
 	return result;
 }
 
-static int end_with_suffix(char *string, char *suffix){
+int end_with_suffix(char *string, char *suffix){
 	if (strlen(suffix) == 0) return 1;
 	char *end_string = string + strlen(string) - 1;
 	char *end_suffix = suffix + strlen(suffix) - 1;
@@ -30,7 +30,7 @@ static int end_with_suffix(char *string, char *suffix){
 }
 
 
-static void insert_2d_array(char **result, char *data, int *current_pos){
+void insert_2d_array(char **result, char *data, int *current_pos){
 	int pos = *current_pos;
 	result[pos] = malloc(strlen(data)+1);
 	memmove(result[pos], data, strlen(data));

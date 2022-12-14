@@ -9,12 +9,6 @@
 #include "mystring.h"
 #include "util.h"
 
-#define MAXLENPROMPT 30
-#define MAX_ARGS_NUMBER 4096
-#define MAX_ARGS_STRLEN 4096
-
-char * INTERN_COMMAND[3] =  {"pwd","cd","exit"};
-
 void init(){
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
