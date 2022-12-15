@@ -1,7 +1,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include <unistd.h>
-#include <limits.h>
+#include <linux/limits.h>
 #include "split_string.h"
 #include "pwd.h"
 #include "cd.h"
@@ -19,6 +19,7 @@ int pwd_P(){
 int parse_args(char ** args, int len, int *ind, char *c){
     int m = 'L';
     int i = 0;
+
     while(i < len){
         if(strcmp("-L",args[i]) == 0) m = 'L';
         else if (strcmp("-P",args[i]) == 0) m = 'P';
@@ -28,9 +29,8 @@ int parse_args(char ** args, int len, int *ind, char *c){
         else break;
         i++;
     }
-    
     *ind = i;
-    *c = m;
+    if (c!=NULL) *c = m;
     return 0;
 }
 

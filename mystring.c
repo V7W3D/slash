@@ -4,9 +4,6 @@
 #include <unistd.h>
 #include "mystring.h"
 
-
-// TODO: implémenter les fonctions déclarées dans mystring.h
-
 struct string * string_new(size_t capacity){
 	struct string * str_n = malloc(sizeof(struct string));
 	str_n->capacity = capacity;

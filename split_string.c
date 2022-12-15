@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "split_string.h"
-#include <limits.h>
+#include <linux/limits.h>
+
 int split_string(char *string, const char *delimiters, char **result){
   int count = 0;
 
