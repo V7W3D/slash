@@ -12,8 +12,8 @@ int is_intern(char *str);
 int check_args(char **args, int len);
 int is_number(char *str);
 void free_2d_array(char **array);
-char *absolute_path(char *path, int *index_start);
-char *format_path(char *string, int start_index);
+void absolute_path(char *path, int *index_start, char *result);
+void format_path(char *string, int start_index, char *result);
 int contains(char*string, char c);
 void concat(char **buf1, char **buf2,int len1, int len2, char **result);
 

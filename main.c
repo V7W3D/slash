@@ -65,7 +65,8 @@ int main(int argc, char **argv){
 			}else{
 				int i=0;
 				int len_array = 0;
-				char **all_paths=star(splited_args, len_splited_args, &len_array);
+				char **all_paths = malloc(PATH_MAX * sizeof(char*));
+				star(splited_args, len_splited_args, &len_array, all_paths);
 				char **args_path = malloc(PATH_MAX*sizeof(char*));
 					while (i < PATH_MAX){
 					args_path[i] = NULL;
@@ -117,8 +118,14 @@ int main(int argc, char **argv){
 					case 0:
 						if (execvp((contains(splited_args[0],'*')?all_paths[0]:splited_args[0])
 							, args_path) < 0){
-							perror("bash");
-							return errno;
+							free(args);
+							free_2d_array(args_path);
+							string_delete(PWD);
+							string_delete(OLD_PATH);
+							string_delete(PROMPT);
+							free_2d_array(all_paths);
+							free_splited_string(splited_args);
+							exit(errno);
 						} 
 						break;
 					default:
@@ -127,8 +134,8 @@ int main(int argc, char **argv){
 							exit_code = WEXITSTATUS(status);
 						break;
 					}
-					free_2d_array(args_path);
 				}
+				free_2d_array(args_path);
 				free_2d_array(all_paths);
 			}
 			free(args);

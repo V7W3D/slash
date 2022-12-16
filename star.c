@@ -53,7 +53,10 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 								free(updated_path);
 							}else{
 								if (index+strlen(suffix)+1 >= strlen(ref)) {
-									insert_2d_array(result, format_path(entry_path, len_abs_path), current_pos);
+									char *result_formated = malloc(PATH_MAX);
+									for (int i=0;i<PATH_MAX;i++) result_formated[i]='\0';
+									format_path(entry_path, len_abs_path, result_formated);
+									insert_2d_array(result, result_formated, current_pos);
 								}
 							}
 							free(entry_path);
@@ -66,34 +69,38 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 				free(suffix);
 		}
 	}
-	if (!contain_star && !stat(ref, &buf)) insert_2d_array(result, format_path(ref, len_abs_path)
-																					, current_pos);
+	if (!contain_star && !stat(ref, &buf)){
+		char *result_formated = malloc(PATH_MAX);
+		for (int i=0;i<PATH_MAX;i++) result_formated[i]='\0';
+		format_path(ref, len_abs_path, result_formated);
+		insert_2d_array(result, result_formated, current_pos);
+	}
 }
 
-char** star(char **args,int len_args, int *len_array){
-	char **result = malloc(PATH_MAX * sizeof(char*));
+void star(char **args,int len_args, int *len_array, char **result){
 	for (int i=0;i<PATH_MAX;i++) result[i] = NULL;
 	int start_index = 0;
 	int index_path = 0;
 	int pos_befor = 0;
 	int pos = 0;
 	while(args[index_path]){
-		char *abs_path = absolute_path(args[index_path], &start_index);
+		char *abs_path = malloc(PATH_MAX);
+		for (int i=0;i<PATH_MAX;i++) abs_path[i] = '\0';
+		absolute_path(args[index_path], &start_index, abs_path);
 		if (abs_path && contains(abs_path, '*')){
 			pos_befor = pos;
 			star_aux(abs_path, result, &pos, start_index);
 			if (pos_befor == pos && index_path == 0){
-				char *cpy = malloc(sizeof(char)*strlen(args[0]));
+				char *cpy = malloc(strlen(args[0])+1);
 				cpy[strlen(args[0])] = '\n';
 				memmove(cpy, args[0], strlen(args[0]));
 				insert_2d_array(result, cpy, &pos);
 			}
-			free(abs_path);
 			*len_array = pos;
 		}
+		free(abs_path);
 		index_path++;
 	}
-	return result;
 }
 
 /*
