@@ -38,6 +38,7 @@ void insert_2d_array(char **result, char *data, int *current_pos){
 	memmove(result[pos], data, strlen(data));
 	result[pos][strlen(data)] = '\0';
 	*current_pos = *current_pos + 1;
+	free(data);
 }
 
 int is_intern(char *str){
@@ -68,31 +69,21 @@ void free_2d_array(char **array){
 	}
 }
 
-char *absolute_path(char **args, int len_args, int *index){
+char *absolute_path(char *path, int *index_start){
 
-	char *path = NULL;
-
-	int i = 0;
-	while(i < len_args){
-		if (args[i][0] != '-'){
-			*index = i;
-			path = malloc(sizeof(char)*strlen(args[i]));
-			memmove(path, args[i], strlen(args[i]));
-			path[strlen(args[i])] = '\0';
-			break;
-		}
-		i++;
-	}
+	if (path[0] == '-') return NULL;
 
 	if (path != NULL && strlen(path) > 0){
 		char *newpath;
 		if (path[0] == '/' || path[0] == '\\'){
+			*index_start = 0;
 			newpath = malloc(strlen(path));
 			memmove(newpath, path, strlen(path));
 			newpath[strlen(path)] = '\0';
 		}else{
 			char *abs_path = malloc(PATH_MAX);
 			getcwd(abs_path, PATH_MAX);
+			*index_start = strlen(abs_path)+1;
 			newpath = malloc(strlen(abs_path)+strlen(path)+2);
 			memmove(newpath, abs_path, strlen(abs_path));
 			memmove(newpath+strlen(abs_path), "/", 1);
@@ -100,28 +91,72 @@ char *absolute_path(char **args, int len_args, int *index){
 			newpath[strlen(abs_path)+strlen(path)+1] = '\0';
 			free(abs_path);
 		}
-		free(path);
+		
 		return newpath;
 	}
 
 	char *abs_path = malloc(PATH_MAX);
 	getcwd(abs_path, PATH_MAX);
+	*index_start = strlen(abs_path)+1;
 	return abs_path;
 }
 
-char *format_string(char *string){
-	char *result;
-	int len = strlen(string) - 1;
-	while (len){
-		if (string[len] == '/') break;
-		len--;
+char *format_path(char *string, int start_index){
+	char *result = malloc(strlen(string)-start_index);
+	int i = 0;
+	int inserted = 0;
+	while (start_index < strlen(string)){
+		result[i] = string[start_index];
+		start_index++;
+		i++;
+		inserted = 0;
+		while(string[start_index] == '/'){
+			if (!inserted){
+				result[i] = string[start_index];
+				inserted = 1;
+				i++;
+			}
+			start_index++;
+		}
+		
 	}
-	result = malloc(sizeof(char) * (strlen(string)-len));
-	memmove(result, string + len+1, strlen(string)-len);
-	result[strlen(string)-len] = '\0';
+	result[i] = '\0';
 	return result;
 }
 
 int contains(char*string, char c){
 	return strchr(string, c) != NULL;
+}
+
+void concat(char **buf1, char **buf2,int len1, int len2, char **result){
+	int stoped_index = 0;
+	if (!contains(buf1[0], '*')){
+		for (int i=0;i<len1;i++){
+			if (!contains(buf1[i], '*')){
+				result[stoped_index] = malloc(strlen(buf1[i]));
+				memmove(result[stoped_index], buf1[i], strlen(buf1[i]));
+				result[stoped_index][strlen(buf1[i])] = '\0';
+				stoped_index++;
+			}
+		}
+		for (int i=stoped_index;i<len2+stoped_index;i++){
+		result[i] = malloc(strlen(buf2[i-stoped_index]));
+		memmove(result[i], buf2[i-stoped_index], strlen(buf2[i-stoped_index]));
+		result[i][strlen(buf2[i-stoped_index])] = '\0';
+		}
+	}else{
+		for (int i=0;i<len2;i++){
+			result[i] = malloc(strlen(buf2[i]));
+			memmove(result[i], buf2[i], strlen(buf2[i]));
+			result[i][strlen(buf2[i])] = '\0';stoped_index++;
+		}
+		for (int i=0;i<len1;i++){
+			if (!contains(buf1[i], '*')){
+				result[stoped_index] = malloc(strlen(buf1[i]));
+				memmove(result[stoped_index], buf1[i], strlen(buf1[i]));
+				result[stoped_index][strlen(buf1[i])] = '\0';
+				stoped_index++;
+			}
+		}
+	}
 }

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #include <wait.h>
+#include <errno.h>
 #include "cd.h"
 #include "pwd.h"
 #include "split_string.h"
@@ -62,84 +63,73 @@ int main(int argc, char **argv){
 			}else if(!check_args(splited_args, len_splited_args)){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
-				int index=-1, len_array = 0;
-				char *path = absolute_path(splited_args+1, len_splited_args-1, &index);
-				char **all_paths = NULL;
-				if (contains(path, '*')) all_paths=star(path, &len_array);
-				if(is_intern(splited_args[0]) == 0){// Commandes internes
-					if (len_array > 1) write(STDERR_FILENO, "intern : too many arguments\n", strlen("intern : too many arguments\n"));
-					else{
-						if (strcmp(splited_args[0], "cd") == 0){
-							exit_code = slash_cd(splited_args+1, len_splited_args-1);
-						}else if (strcmp(splited_args[0], "pwd") == 0){
-							exit_code = slash_pwd(splited_args+1, len_splited_args-1);
+				int i=0;
+				int len_array = 0;
+				char **all_paths=star(splited_args, len_splited_args, &len_array);
+				char **args_path = malloc(PATH_MAX*sizeof(char*));
+					while (i < PATH_MAX){
+					args_path[i] = NULL;
+					i++;
+				}
+				concat(splited_args, all_paths,len_splited_args, len_array, args_path);
+				char *valid_command = (contains(splited_args[0], '*')?all_paths[0]:splited_args[0]);
+				if(is_intern(valid_command) == 0){// Commandes internes
+						if (strcmp(valid_command, "cd") == 0){
+							exit_code = slash_cd(args_path+1, len_splited_args-1);
+						}else if (strcmp(valid_command, "pwd") == 0){
+							exit_code = slash_pwd(args_path+1, len_splited_args-1);
 						}else{
 							if (len_splited_args == 2){
-								if (is_number(splited_args[1])){
-									int exit_parameter = atoi(splited_args[1]);
+								if (is_number(args_path[1])){
+									int exit_parameter = atoi(args_path[1]);
 									free(args);
 									string_delete(PROMPT);
 									string_delete(PWD);
 									string_delete(OLD_PATH);
 									free_splited_string(splited_args);
+									free_2d_array(all_paths);
+									free_2d_array(args_path);
 									exit(exit_parameter);
 								}else{
 									write(STDERR_FILENO, "exit : error must be an integer\n", 32);
 								}
 							}else if (len_splited_args == 1){
 								free(args);
+								free_2d_array(args_path);
 								string_delete(PWD);
 								string_delete(OLD_PATH);
 								string_delete(PROMPT);
+								free_2d_array(all_paths);
 								free_splited_string(splited_args);
 								exit(exit_code);
 							}else{
 								write(STDERR_FILENO, "exit: too many arguments\n", 25);
 							}
 						}
-					}
 				}
 				else{ // Commandes externes
 					int status;
-					int i=0;
-					char **args_path = malloc(PATH_MAX*sizeof(char*));
-					while (i < PATH_MAX){
-						args_path[i] = NULL;
-						i++;
-					}
-					int stoped_index = 0;
-					for (int i=0;i<len_splited_args;i++){
-						if (!contains(splited_args[i], '*')){
-							args_path[i] = malloc(strlen(splited_args[i]));
-							memmove(args_path[i], splited_args[i], strlen(splited_args[i]));
-							args_path[i][strlen(splited_args[i])] = '\0';
-							stoped_index++;
-						}
-					}
-					if (all_paths){
-						for (int i=stoped_index;i<len_array+stoped_index;i++){
-							args_path[i] = malloc(strlen(all_paths[i-stoped_index]));
-							memmove(args_path[i], all_paths[i-stoped_index], strlen(all_paths[i-stoped_index]));
-							args_path[i][strlen(all_paths[i-stoped_index])] = '\0';
-						}
-					}
 					switch (fork())
 					{
 					case -1:						
 						write(STDERR_FILENO,"fork()", strlen("fork()"));
 					break;
 					case 0:
-						execvp(splited_args[0], args_path);
+						if (execvp((contains(splited_args[0],'*')?all_paths[0]:splited_args[0])
+							, args_path) < 0){
+							perror("bash");
+							return errno;
+						} 
 						break;
 					default:
 						wait(&status);
-						exit_code = WEXITSTATUS(status);
-						free_2d_array(args_path);
+						if (WIFEXITED(status))
+							exit_code = WEXITSTATUS(status);
 						break;
 					}
+					free_2d_array(args_path);
 				}
-				free(path);
-				if (all_paths) free_2d_array(all_paths);
+				free_2d_array(all_paths);
 			}
 			free(args);
 			free_splited_string(splited_args);
