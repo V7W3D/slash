@@ -16,11 +16,11 @@ struct string *PROMPT;
 
 static void free_all_ressources(){
 	free(args);
-	free_2d_array(star_path);
+	//free_2d_array(star_path);
 	string_delete(PWD);
 	string_delete(OLD_PATH);
 	string_delete(PROMPT);
-	free_2d_array(updated_args);
+	//free_2d_array(updated_args);
 	free_splited_string(splited_args);
 }
 
@@ -70,11 +70,14 @@ int main(int argc, char **argv){
 			}else{
 				int len_array = 0;
 				
-				star_path = malloc(PATH_MAX * sizeof(char*));
+				/*star_path = malloc(PATH_MAX * sizeof(char*));
 				star(splited_args, len_splited_args, &len_array, star_path);
 				updated_args = malloc(PATH_MAX * sizeof(char*));
 				for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
-				concat(splited_args, star_path, len_splited_args, len_array, updated_args);
+				concat(splited_args, star_path, len_splited_args, len_array, updated_args);*/
+
+				updated_args = splited_args;
+					
 
 				if(is_intern(updated_args[0]) == 0){// Commandes internes
 						if (strcmp(updated_args[0], "cd") == 0){
