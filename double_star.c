@@ -3,13 +3,7 @@
 #include <dirent.h>
 #include <limits.h>
 #include <unistd.h>
-#include <stdio.h>
-#include "star.h"
-#include "double_star.h"
-#include "mystring.h"
-#include "split_string.h"
-
-
+#include <stdlib.h>
 
 char STAR_PATH[PATH_MAX];
 
@@ -93,4 +87,16 @@ void parse_ref(char * ref, char * target, char * chemin){
   strcpy(target, ref + i + 1);
   ref[i] = '\0';
   strcpy(chemin, ref + 2);
+}
+
+int main(){
+  //int ind_ref = parse_args_main(updated_args, len_splited_args);
+  if(strlen(updated_args[ind_ref]) > 2){
+      if(updated_args[ind_ref][0] == '*' && updated_args[ind_ref][1] == '*'){
+      char chemin[PATH_MAX];
+      char target[PATH_MAX];
+      parse_ref(updated_args[ind_ref], target, chemin);
+      double_star(target, chemin);
+    }
+  }
 }

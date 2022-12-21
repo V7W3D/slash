@@ -82,3 +82,14 @@ void init(){
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
 }
+
+int parse_args_main(char ** args, int len){
+	int i = 1;
+	while(i < len){
+		if((args[i][0] == '-') && strlen(args[i]) > 2){
+			i++;
+		}
+		else break;
+	}
+	return i;
+}
