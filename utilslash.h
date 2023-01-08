@@ -12,6 +12,5 @@ void free_2d_array(char **array);
 int contains(char*string, char c);
 void concat(char **buf1, char **buf2,int len1, int len2, char **result);
 void init();
-int parse_args_main(char ** args, int len);
 
 #endif
