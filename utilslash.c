@@ -45,39 +45,6 @@ int contains(char*string, char c){
 	return 0;
 }
 
-void concat(char **buf1, char **buf2, int len1, int len2, char **result){
-	int stoped_index = 0;
-	if (!contains(buf1[0], '*')){
-		for (int i=0;i<len1;i++){
-			if (!contains(buf1[i], '*')){
-				result[stoped_index] = malloc(strlen(buf1[i])+1);
-				memmove(result[stoped_index], buf1[i], strlen(buf1[i]));
-				result[stoped_index][strlen(buf1[i])] = '\0';
-				stoped_index++;
-			}
-		}
-		for (int i=stoped_index;i<len2+stoped_index;i++){
-		result[i] = malloc(strlen(buf2[i-stoped_index])+1);
-		memmove(result[i], buf2[i-stoped_index], strlen(buf2[i-stoped_index]));
-		result[i][strlen(buf2[i-stoped_index])] = '\0';
-		}
-	}else{
-		for (int i=0;i<len2;i++){
-			result[i] = malloc(strlen(buf2[i])+1);
-			memmove(result[i], buf2[i], strlen(buf2[i]));
-			result[i][strlen(buf2[i])] = '\0';stoped_index++;
-		}
-		for (int i=0;i<len1;i++){
-			if (!contains(buf1[i], '*')){
-				result[stoped_index] = malloc(strlen(buf1[i])+1);
-				memmove(result[stoped_index], buf1[i], strlen(buf1[i]));
-				result[stoped_index][strlen(buf1[i])] = '\0';
-				stoped_index++;
-			}
-		}
-	}
-}
-
 void init(){
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);

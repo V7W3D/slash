@@ -101,16 +101,3 @@ int parse_args_main(char ** args, int len){
 	return i;
 }
 
-int main(int argc, char ** argv){
-  char target[256];
-  char chemin[256];
-  char ref[256] = "**/toto";
-
-  parse_ref(ref, target, chemin);
-
-  printf("%s\n", target);
-  printf("%s\n", chemin);
-
-  double_star(target, chemin);
-
-}
