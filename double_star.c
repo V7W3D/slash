@@ -10,56 +10,44 @@
 
 char STAR_PATH[PATH_MAX];
 
-void double_star_aux(char * dir, char * target, char * chemin, char ** result, int *len_result){ 
-  int cpt = *len_result;
-  printf("%d,\n",*len_result);
-  DIR * dirp = opendir(".");
+int double_star_aux(char * ref, char * target, char * chemin, char ** result, int *len_result){ 
   struct dirent * entry;
-  char dir_tmp[PATH_MAX];
-  strcpy(dir_tmp, dir);
-  if(strlen(dir) > 0){
-    strcat(STAR_PATH, "/");
-    strcat(STAR_PATH, dir);
+  char ref_tmp[PATH_MAX], ref_chemin[PATH_MAX];
+  DIR * dirp1;
+  DIR * dirp2;
+  DIR * d;
+  
+  if((dirp1 = opendir(ref)) == NULL){
+    perror("opendir");
+    exit(1);
   }
-  if((strlen(chemin) > 0) && (chdir(chemin) != -1)){
-    while((entry = readdir(dirp))){
+
+  snprintf(ref_chemin, PATH_MAX, "%s/%s", ref, chemin);
+  if((dirp2 = opendir(ref_chemin)) != NULL){
+    while((entry = readdir(dirp2))){
       if(strcmp(entry->d_name, target) == 0){
-        result[cpt] = malloc(PATH_MAX);
-        strcpy(result[cpt], dir);
-        strcat(result[cpt], chemin);
-        strcat(result[cpt], target);
-        cpt++;
+        result[*len_result] = malloc(PATH_MAX);
+        strcpy(result[*len_result], ref);
+        strcat(result[*len_result], chemin);
+        strcat(result[*len_result], target);
+        *len_result = *len_result + 1;
         break;
       }
     }
-    chdir(STAR_PATH);
   }
-  else{
-    while((entry = readdir(dirp))){  
-      if(strcmp(entry->d_name, target) == 0){
-        result[cpt] = malloc(PATH_MAX);
-        strcpy(result[cpt], dir);
-        strcat(result[cpt], target);
-        cpt++;
-        break;
+  closedir(dirp2);
+  
+  while((entry = readdir(dirp1))){
+    if(entry->d_name[0] != '.'){
+      snprintf(ref_tmp, PATH_MAX, "%s/%s", ref, entry->d_name);
+      if((d = opendir(ref_tmp)) != NULL){
+        double_star_aux(ref_tmp, target, chemin, result, len_result);
       }
-    }   
-  }
-  while((entry = readdir(dirp))){
-    if(strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0){
-      if(DT_DIR == entry->d_type){
-        strcat(dir,entry->d_name);
-        strcat(dir, "/");
-        if(chdir(entry->d_name) != -1){
-          *len_result = cpt;
-          double_star_aux(dir, target, chemin, result, len_result);
-          strcpy(dir, dir_tmp);
-          chdir("..");
-        }	
-      }
+      closedir(d);
     }
   }
-  closedir(dirp);
+  closedir(dirp1);
+  return 0;
 }
 
 void double_star(char * target, char * chemin){
@@ -70,7 +58,7 @@ void double_star(char * target, char * chemin){
     result[i] = NULL;
   }
   char dir[PATH_MAX];
-  strcpy(dir, "");
+  strcpy(dir, ".");
   double_star_aux(dir, target, chemin, result, &len_res);
   i = 0;
   while(result[i]){
@@ -98,6 +86,7 @@ void parse_ref(char * ref, char * target, char * chemin){
   strcpy(target, ref + i + 1);
   ref[i] = '\0';
   strcpy(chemin, ref + 2);
+  strcat(chemin, "/"); // Pour des raisons d'affichage
 }
 
 
@@ -113,5 +102,15 @@ int parse_args_main(char ** args, int len){
 }
 
 int main(int argc, char ** argv){
-  double_star("toto",".");
+  char target[256];
+  char chemin[256];
+  char ref[256] = "**/toto";
+
+  parse_ref(ref, target, chemin);
+
+  printf("%s\n", target);
+  printf("%s\n", chemin);
+
+  double_star(target, chemin);
+
 }
