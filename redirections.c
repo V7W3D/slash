@@ -115,35 +115,41 @@ void avec_ecrasement_stderr(char **cmd, char * fic){
     execvp(cmd[0], cmd);
 }
 
-void pipeline(char *args){
-    int pipefd[2];
-    pipe(pipefd);
-    char **splited_args = allocate_splited_string();
-    char **splited_cmd;
+void fork_tree(int * i, int n, char ** splited_args){
+    char ** splited_cmd;
     int len_cmd;
-    int len = split_string(args, "|", splited_args);
-    printf("Len: %d\n",len);
-    for(int i = 0; i<len-1; i++){
-        printf("%s\n",splited_args[i]);
-        switch (fork()){
-            case -1:
-                perror("fork()");
-            case 0:
+
+    if(*i < n){
+        pid_t pid;
+        int pipefd[2];
+        pipe(pipefd);
+        if((pid = fork()) < 0) perror("fork");
+        else{
+            if(pid == 0){
                 close(pipefd[1]);
                 dup2(pipefd[0], 0);
-                break;
-            default:
+                *i = *i + 1;
+                fork_tree(i, n, splited_args);
+            }
+            else{
                 close(pipefd[0]);
                 dup2(pipefd[1], 1);
                 splited_cmd = allocate_splited_string();
-                len_cmd = split_string(splited_args[i], " ", splited_cmd);
+                len_cmd = split_string(splited_args[*i], " ", splited_cmd);
                 parse_redirections(splited_cmd, len_cmd);
+            }
         }
     }
     splited_cmd = allocate_splited_string();
-    len_cmd = split_string(splited_args[len-1], " ", splited_cmd);
+    len_cmd = split_string(splited_args[n-1], " ", splited_cmd);
     parse_redirections(splited_cmd, len_cmd);
+}
 
+void pipeline(char *args){
+    char **splited_args = allocate_splited_string();
+    int len = split_string(args, "|", splited_args);
+    int i = 0;
+    fork_tree(&i, len, splited_args);
 }
 
 int main(){
