@@ -16,15 +16,6 @@
 char *args;
 struct string *PROMPT;
 
-/*
-static void free_all_ressources(){
-	free(args);
-	string_delete(PWD);
-	string_delete(OLD_PATH);
-	string_delete(PROMPT);
-}
-*/
-
 int main(int argc, char **argv){
 	
 	rl_outstream = stderr;
@@ -64,4 +55,8 @@ int main(int argc, char **argv){
 			free(args);
 		}
 	}
+	/*
+	string_delete(PWD);
+	string_delete(OLD_PATH);
+	string_delete(PROMPT);*/
 }

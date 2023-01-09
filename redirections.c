@@ -26,11 +26,13 @@ void commande_interne(char ** updated_args, int len_updated_args, int len_cmd){
         if (len_cmd == 2){
             if (is_number(updated_args[1])){
                 int exit_parameter = atoi(updated_args[1]);
+                free_2d_array(updated_args);
                 exit(exit_parameter);
             }else{
                 write(STDERR_FILENO, "exit : error must be an integer\n", 32);
             }
         }else if (len_cmd == 1){
+            free_2d_array(updated_args);
             exit(exit_code);
         }else{
             write(STDERR_FILENO, "exit: too many arguments\n", 25);
@@ -39,63 +41,18 @@ void commande_interne(char ** updated_args, int len_updated_args, int len_cmd){
 }
 
 void stdin_fd(char ** cmd, int fd){
-    int status;
-    switch (fork())
-    {
-    case -1:						
-        write(STDERR_FILENO,"fork", strlen("fork"));
-    break;
-    case 0:
-        dup2(fd, 0);
-        if (execvp(cmd[0], cmd) < 0){
-            exit(errno);
-        }
-        break;
-    default:
-        wait(&status);
-        if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
-        break;
-    }
+    dup2(fd, 0);
+    execvp(cmd[0], cmd);
 }
 
 void fd_stdout(char ** cmd, int fd){
-    int status;
-    switch (fork())
-    {
-    case -1:						
-        write(STDERR_FILENO,"fork", strlen("fork"));
-    break;
-    case 0:
-        dup2(fd, 1);
-        if (execvp(cmd[0], cmd) < 0){
-            exit(errno);
-        }
-        break;
-    default:
-        wait(&status);
-        if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
-        break;
-    }
+    dup2(fd, 1);
+    execvp(cmd[0], cmd);
 }
 
 void fd_stderr(char ** cmd, int fd){
-    int status;
-    switch (fork())
-    {
-    case -1:						
-        write(STDERR_FILENO,"fork", strlen("fork"));
-    break;
-    case 0:
-        dup2(fd, 2);
-        if (execvp(cmd[0], cmd) < 0){
-            exit(errno);
-        }
-        break;
-    default:
-        wait(&status);
-        if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
-        break;
-    }
+    dup2(fd, 2);
+    execvp(cmd[0], cmd);
 }
 
 int ind_sym(char * sym){
@@ -151,24 +108,7 @@ void parse_redirections(char **updated_args, int len, int len_cmd){
     }
     if(i == len) {
         if(is_intern(updated_args[0]) == 0) commande_interne(updated_args, len, len_cmd);
-        else{
-            int status;
-            switch (fork())
-            {
-            case -1:						
-                write(STDERR_FILENO,"fork", strlen("fork"));
-                break;
-            case 0:
-                if (execvp(updated_args[0], updated_args) < 0){
-                    exit(errno);
-                }
-                break;
-            default:
-                wait(&status);
-                if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
-                break;
-            }
-        }
+        else execvp(updated_args[0], updated_args);
     }
 }
 
@@ -214,7 +154,7 @@ void en_concat_stderr(char ** cmd, int len_cmd, int len, char *fic){
 void sans_ecrasement_stderr(char **cmd, int len_cmd, int len, char * fic){
     int fd = open(fic, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if(fd < 0){
-        if(errno == EEXIST) write(2, "Le fichier existe déjà\n", 23);
+        if(errno == EEXIST) write(2, "Le fichier existe déjà\n", strlen("Le fichier existe déjà\n"));
     }
     else {
         if(is_intern(cmd[0]) == 0) commande_interne(cmd, len_cmd, len); else fd_stderr(cmd, fd);
@@ -273,14 +213,56 @@ void fork_tree(int * i, int n, char ** splited_args){
     free_2d_array(updated_args);
     free_2d_array(star_path);
     free_splited_string(splited_cmd);
-    write(2, "Le fichier existe déjà\n", 24);
-    
 }
 
 void pipeline(char *args){
     char **splited_args = allocate_splited_string();
     int len = split_string(args, "|", splited_args);
-    int i = 0;
-    fork_tree(&i, len-1, splited_args);
+    int status;
+    if(len > 1){
+        int i = 0;
+        switch (fork()){
+        case -1:						
+            write(STDERR_FILENO,"fork", strlen("fork"));
+            break;
+        case 0:
+            fork_tree(&i, len-1, splited_args);
+            break;
+        default:
+            wait(&status);
+            if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
+        }
+    }
+    else{
+        int len_array = 0;
+        char ** splited_cmd = allocate_splited_string();
+        int len_cmd = split_string(splited_args[0], " ", splited_cmd);
+        char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
+        star(splited_cmd, len_cmd, &len_array, star_path);
+        char ** updated_args = malloc(10 * PATH_MAX * sizeof(char*));
+        for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
+        concat(splited_cmd, star_path, len_cmd, len_array, updated_args, &len);
+        free_2d_array(star_path);
+        free_splited_string(splited_cmd);
+
+        if(is_intern(updated_args[0]) == 0) parse_redirections(updated_args, len, len_cmd);
+        else{
+            switch (fork()){
+            case -1:						
+                write(STDERR_FILENO,"fork", strlen("fork"));
+                break;
+            case 0:
+                parse_redirections(updated_args, len, len_cmd);
+                free_2d_array(updated_args);
+                free_splited_string(splited_args);
+                exit(errno);
+                break;
+            default:
+                wait(&status);
+                if (WIFEXITED(status)) exit_code = WEXITSTATUS(status);
+            }
+        }
+        free_2d_array(updated_args);
+    }
     free_splited_string(splited_args);
 }
