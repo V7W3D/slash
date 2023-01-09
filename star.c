@@ -7,6 +7,7 @@
 #include <linux/limits.h>
 #include "star.h"
 #include "utilslash.h"
+#include "double_star.h"
 
 void concat(char **buf1, char **buf2, int len1, int len2, char **result){
 	int stoped_index = 0;
@@ -131,60 +132,59 @@ static char* alloc_string(int len){
 	return result;
 }	
 
-static void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
+void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 	
-	char *suffix = NULL;
-	DIR *dir = NULL; 
-	struct dirent *entry = NULL;
 	struct stat buf;
-	int last_index_star = 0;
-	int contain_star = 0;
 
-	for (int index=0; index < strlen(ref); index++){
-		if (*(ref+index) == '/') last_index_star = index+1;
-		else if (*(ref+index) == '*' && ((*(ref+index+1) == '\0') || *(ref+index+1) != '*')
-			&& ((index == 0) || *(ref+index-1) == '/')){
-				contain_star = 1;
-				suffix = get_suffix_after_star(ref, &index);
+	if (contains(ref, '*')){
+		char *suffix = NULL;
+		DIR *dir = NULL; 
+		struct dirent *entry = NULL;
+		int last_index_star = 0;
 
-				char *path = alloc_string(last_index_star+1); 
-				memmove(path, ref, last_index_star);
+		for (int index=0; index < strlen(ref); index++){
+			if (*(ref+index) == '/') last_index_star = index+1;
+			else if (*(ref+index) == '*' && ((*(ref+index+1) == '\0') || *(ref+index+1) != '*')
+				&& ((index == 0) || *(ref+index-1) == '/')){
+					suffix = get_suffix_after_star(ref, &index);
 
-				dir = opendir(path);
+					char *path = alloc_string(last_index_star+1); 
+					memmove(path, ref, last_index_star);
 
-				if (dir != NULL){
-					while ((entry = readdir(dir)) != NULL){
-						if (strlen(entry->d_name) != 0 && end_with_suffix(entry->d_name, suffix)
-							&& entry->d_name[0] != '.'){
-							contain_star = 1;
-							char *entry_path = alloc_string(strlen(path)+strlen(entry->d_name)+1);
-							memmove(entry_path, ref, strlen(path));
-							memmove(entry_path+strlen(path), entry->d_name, strlen(entry->d_name));
-							if (stat(entry_path, &buf) != 0) return;
-							if (S_ISDIR(buf.st_mode) || S_ISLNK(buf.st_mode)){
-								char *updated_path=alloc_string(strlen(entry_path)+strlen(ref+index+1)+1);
-								memmove(updated_path, entry_path, strlen(entry_path));
-								memmove(updated_path + strlen(entry_path), ref+index+1, strlen(ref+index+1));
-								star_aux(updated_path, result, current_pos, len_abs_path);
-								free(updated_path);
-							}else{
-								if (index+strlen(suffix)+1 >= strlen(ref)) {
-									char *result_formated = alloc_string(PATH_MAX);
-									format_path(entry_path, len_abs_path, result_formated);
-									insert_2d_array(result, result_formated, current_pos);
+					dir = opendir(path);
+
+					if (dir != NULL){
+						while ((entry = readdir(dir)) != NULL){
+							if (strlen(entry->d_name) != 0 && end_with_suffix(entry->d_name, suffix)
+								&& entry->d_name[0] != '.'){
+								char *entry_path = alloc_string(strlen(path)+strlen(entry->d_name)+1);
+								memmove(entry_path, ref, strlen(path));
+								memmove(entry_path+strlen(path), entry->d_name, strlen(entry->d_name));
+								if (stat(entry_path, &buf) != 0) return;
+								if (S_ISDIR(buf.st_mode) || S_ISLNK(buf.st_mode)){
+									char *updated_path=alloc_string(strlen(entry_path)+strlen(ref+index+1)+1);
+									memmove(updated_path, entry_path, strlen(entry_path));
+									memmove(updated_path + strlen(entry_path), ref+index+1, strlen(ref+index+1));
+									star_aux(updated_path, result, current_pos, len_abs_path);
+									free(updated_path);
+								}else{
+									if (index+strlen(suffix)+1 >= strlen(ref)) {
+										char *result_formated = alloc_string(PATH_MAX);
+										format_path(entry_path, len_abs_path, result_formated);
+										insert_2d_array(result, result_formated, current_pos);
+									}
 								}
+								free(entry_path);
 							}
-							free(entry_path);
 						}
+						closedir(dir);
 					}
-					closedir(dir);
-				}
 
-				free(path);
-				free(suffix);
+					free(path);
+					free(suffix);
+			}
 		}
-	}
-	if (!contain_star && !stat(ref, &buf)){
+	}else if (!stat(ref, &buf)){
 		char *result_formated = alloc_string(PATH_MAX);
 		format_path(ref, len_abs_path, result_formated);
 		insert_2d_array(result, result_formated, current_pos);
@@ -196,21 +196,29 @@ void star(char **args,int len_args, int *len_array, char **result){
 	int start_index = 0;
 	int index_path = 0;
 	int pos_befor = 0;
-	int pos = 0;
 	while(args[index_path]){
-		char *abs_path = alloc_string(PATH_MAX);
-		absolute_path(args[index_path], &start_index, abs_path);
-		if (abs_path && contains(abs_path, '*')){
-			pos_befor = pos;
-			star_aux(abs_path, result, &pos, start_index);
-			if (pos_befor == pos && index_path == 0){
-				char *cpy = alloc_string(strlen(args[0])+1);
-				memmove(cpy, args[0], strlen(args[0]));
-				insert_2d_array(result, cpy, &pos);
+		if (strlen(args[index_path]) > 1 && args[index_path][0] == '*' && args[index_path][1] == '*'){
+			pos_befor = *len_array;
+			double_star(args[index_path], result, len_array);
+			if (pos_befor == *len_array && index_path == 0){
+				char *cpy = alloc_string(PATH_MAX);
+				memmove(cpy, args[index_path], strlen(args[index_path]));
+				insert_2d_array(result, cpy, len_array);
 			}
-			*len_array = pos;
+		}else{
+			char *abs_path = alloc_string(PATH_MAX);
+			absolute_path(args[index_path], &start_index, abs_path);
+			if (abs_path && contains(args[index_path], '*')){
+				pos_befor = *len_array;
+				star_aux(abs_path, result, len_array, start_index);
+				if (pos_befor == *len_array && index_path == 0){
+					char *cpy = alloc_string(PATH_MAX);
+					memmove(cpy, args[index_path], strlen(args[index_path]));
+					insert_2d_array(result, cpy, len_array);
+				}
+			}
+			free(abs_path);
 		}
-		free(abs_path);
 		index_path++;
 	}
 }

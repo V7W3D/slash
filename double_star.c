@@ -7,14 +7,12 @@
 #include <stdio.h>
 #include "split_string.h"
 #include "double_star.h"
+#include "star.h"
 
-char STAR_PATH[PATH_MAX];
-
-int double_star_aux(char * ref, char * target, char * chemin, char ** result, int *len_result){ 
+static int double_star_aux(char * ref, char * target, char * chemin, char ** result, int *len_result){ 
   struct dirent * entry;
-  char ref_tmp[PATH_MAX], ref_chemin[PATH_MAX];
+  char *ref_tmp = malloc(PATH_MAX), *ref_chemin = malloc(PATH_MAX);
   DIR * dirp1;
-  DIR * dirp2;
   DIR * d;
   
   if((dirp1 = opendir(ref)) == NULL){
@@ -22,20 +20,9 @@ int double_star_aux(char * ref, char * target, char * chemin, char ** result, in
     exit(1);
   }
 
-  snprintf(ref_chemin, PATH_MAX, "%s/%s", ref, chemin);
-  if((dirp2 = opendir(ref_chemin)) != NULL){
-    while((entry = readdir(dirp2))){
-      if(strcmp(entry->d_name, target) == 0){
-        result[*len_result] = malloc(PATH_MAX);
-        strcpy(result[*len_result], ref);
-        strcat(result[*len_result], chemin);
-        strcat(result[*len_result], target);
-        *len_result = *len_result + 1;
-        break;
-      }
-    }
-  }
-  closedir(dirp2);
+  snprintf(ref_chemin, PATH_MAX, "%s/%s/%s", ref, chemin, target);
+  star_aux(ref_chemin, result, len_result, 0);
+  free(ref_chemin);
   
   while((entry = readdir(dirp1))){
     if(entry->d_name[0] != '.'){
@@ -46,35 +33,12 @@ int double_star_aux(char * ref, char * target, char * chemin, char ** result, in
       closedir(d);
     }
   }
+  free(ref_tmp);
   closedir(dirp1);
   return 0;
 }
 
-void double_star(char * target, char * chemin){
-  int len_res = 0;
-  char ** result = malloc(PATH_MAX * sizeof(char*));
-  int i;
-  for(i = 0; i < PATH_MAX; i++){
-    result[i] = NULL;
-  }
-  char dir[PATH_MAX];
-  strcpy(dir, ".");
-  double_star_aux(dir, target, chemin, result, &len_res);
-  i = 0;
-  while(result[i]){
-    printf("-> %s ",result[i]);
-    i++;
-  }
-  printf("\n");
-  i = 0;
-  while(result[i]){
-    free(result[i]);
-    i++;
-  }
-  free(result);
-}
-
-void parse_ref(char * ref, char * target, char * chemin){  
+static void parse_ref(char * ref, char * target, char * chemin){  
 //  **/A/toto -> target: toto, chemin: A 
 //  **/toto   -> target: toto, chemin: ø
 //  **/*.c    -> target: (**/main.c, **/pwd.c, **/cd.c), chemin: ø
@@ -89,15 +53,13 @@ void parse_ref(char * ref, char * target, char * chemin){
   strcat(chemin, "/"); // Pour des raisons d'affichage
 }
 
-
-int parse_args_main(char ** args, int len){
-	int i = 1;
-	while(i < len){
-		if((args[i][0] == '-') && strlen(args[i]) > 1){
-			i++;
-		}
-    else break;
-	}
-	return i;
+void double_star(char *ref, char **result, int *len){
+  char *target = malloc(PATH_MAX), *chemin = malloc(PATH_MAX);
+  parse_ref(ref, target, chemin);
+  char *dir = malloc(PATH_MAX);
+  strcpy(dir, ".");
+  double_star_aux(dir, target, chemin, result, len);
+  free(target);
+  free(chemin);
+  free(dir);
 }
-

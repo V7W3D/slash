@@ -24,7 +24,7 @@ static void free_all_ressources(){
 	free_2d_array(updated_args);
 	free_splited_string(splited_args);
 }
-/*
+
 int main(int argc, char **argv){
 	
 	int exit_code = 0;
@@ -70,9 +70,9 @@ int main(int argc, char **argv){
 				write(STDERR_FILENO, "\nMAX_ARGS_STRLEN\n", 17);
 			}else{
 				int len_array = 0;
-				star_path = malloc(PATH_MAX * sizeof(char*));
+				star_path = malloc(10 * PATH_MAX * sizeof(char*));
 				star(splited_args, len_splited_args, &len_array, star_path);
-				updated_args = malloc(PATH_MAX * sizeof(char*));
+				updated_args = malloc(10 * PATH_MAX * sizeof(char*));
 				for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
 				concat(splited_args, star_path, len_splited_args, len_array, updated_args);
 
@@ -109,7 +109,7 @@ int main(int argc, char **argv){
 						if (execvp(updated_args[0], updated_args) < 0){
 							free_all_ressources();
 							exit(errno);
-						} 
+						}
 						break;
 					default:
 						wait(&status);
@@ -119,10 +119,10 @@ int main(int argc, char **argv){
 				}
 				free_2d_array(star_path);
 				free_2d_array(updated_args);
+	
 			}
 			free(args);
 			free_splited_string(splited_args);
 		}
 	}
 }
-*/

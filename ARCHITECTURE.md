@@ -1,3 +1,4 @@
+<<<<<<< HEAD
                             Système d'exploitation
                             Projet: Programmation d'un interpréteur de commandes.
                     
@@ -34,3 +35,8 @@ Dans le cadre du cours SY5, il nous est proposé un projet : programmer un inter
 # Conclusion
 
 ---
+=======
+Le projet a été  divisé en plusieurs fichiers (.c et .h) pour une meilleure visiblité et lisibilité du code.
+Ainsi chacune de 'pwd' et 'cd' a son propre fichier.
+Pour 'exit', elle a directement été implémentée dans le fichier main.c où y est la fonction main.
+>>>>>>> younes
