@@ -82,3 +82,4 @@ void init(){
 	maj_PWD_P();
 	string_cpy(OLD_PATH, PWD);
 }
+

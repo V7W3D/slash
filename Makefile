@@ -3,9 +3,9 @@ CFLAGS = -Wall
 CLIBRARY = -lreadline
 
 slash : main.o
-	$(CC) $(CFLAGS) -o slash main.o cd.o pwd.o mystring.o split_string.o utilslash.o star.o $(CLIBRARY) 
+	$(CC) $(CFLAGS) -o slash main.o cd.o pwd.o mystring.o split_string.o utilslash.o star.o double_star.o $(CLIBRARY) 
 
-main.o : main.c cd.o pwd.o cd.o star.o utilslash.o
+main.o : main.c cd.o pwd.o cd.o star.o utilslash.o double_star.o
 	$(CC) $(CFLAGS) -c main.c -o main.o $(CLIBRARY) 
 
 pwd.o:pwd.h cd.h mystring.o split_string.o
@@ -25,6 +25,9 @@ star.o : star.h utilslash.o
 
 utilslash.o : utilslash.h
 	$(CC) $(CFLAGS) -c utilslash.c -o utilslash.o $(CLIBRARY) 
+
+double_star.o : double_star.h 
+	$(CC) $(CFLAGS) -c double_star.c -o double_star.o $(CLIBRARY)
 
 clean:
 	rm -f *.o slash
