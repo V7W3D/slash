@@ -9,7 +9,7 @@
 #include "utilslash.h"
 #include "double_star.h"
 
-void concat(char **buf1, char **buf2, int len1, int len2, char **result){
+void concat(char **buf1, char **buf2, int len1, int len2, char **result, int * len){
 	int stoped_index = 0;
 	if (!contains(buf1[0], '*')){
 		for (int i=0;i<len1;i++){
@@ -40,6 +40,7 @@ void concat(char **buf1, char **buf2, int len1, int len2, char **result){
 			}
 		}
 	}
+	*len = stoped_index;
 }
 
 static char* get_suffix_after_star(char *ref, int *star_index){
