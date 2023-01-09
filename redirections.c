@@ -20,8 +20,8 @@ int ind_sym(char * sym){
 }
 
 void parse_redirections(char **splited_args, int len){
-    for(int i = 0; i < len; i++){
-        
+    int i;
+    for(i = 0; i < len; i++){    
         switch(ind_sym(splited_args[i])){
             case 0:
                 splited_args[i] = NULL;
@@ -53,7 +53,7 @@ void parse_redirections(char **splited_args, int len){
                 break;                
         }
     }
-    execvp(splited_args[0], splited_args);
+    if(i == len) execvp(splited_args[0], splited_args);
 }
 
 // cmd < fic 
@@ -68,7 +68,7 @@ void sans_ecrasement_stdout(char ** cmd, char *fic){
     int fd = open(fic,O_CREAT | O_EXCL | O_WRONLY , 0666);
     if(fd == -1){
         if(errno == EEXIST){
-            write(2, "le fichier existe déjà", strlen("le fichier existe déjà"));
+            write(2, "le fichier existe déjà\n", strlen("le fichier existe déjà\n"));
         }
     }
     dup2(fd, 1);
@@ -141,7 +141,7 @@ void fork_tree(int * i, int n, char ** splited_args){
         }
     }
     splited_cmd = allocate_splited_string();
-    len_cmd = split_string(splited_args[n-1], " ", splited_cmd);
+    len_cmd = split_string(splited_args[n], " ", splited_cmd);
     parse_redirections(splited_cmd, len_cmd);
 }
 
@@ -149,13 +149,12 @@ void pipeline(char *args){
     char **splited_args = allocate_splited_string();
     int len = split_string(args, "|", splited_args);
     int i = 0;
-    fork_tree(&i, len, splited_args);
+    fork_tree(&i, len-1, splited_args);
 }
 
 int main(){
     char p1[256] = "cat texte | head -n 15 | tail -n 14 | head -n 13 | tail -n 10";
-    char p[256] = "ls -l |  head -n 8 | tail -n 5 | head -n 2";
+    char p[256] = "echo \"izan\" > err";
     pipeline(p);
-
     return 0;
 }

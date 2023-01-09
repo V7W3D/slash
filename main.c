@@ -24,7 +24,7 @@ static void free_all_ressources(){
 	free_2d_array(updated_args);
 	free_splited_string(splited_args);
 }
-
+/*
 int main(int argc, char **argv){
 	
 	int exit_code = 0;
@@ -125,3 +125,4 @@ int main(int argc, char **argv){
 		}
 	}
 }
+*/
