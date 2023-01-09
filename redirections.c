@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
 #include "redirections.h"
+#include "split_string.h"
 
 char mes_symboles[7][4] = {"<", ">", ">|", ">>", "2>>", "2>", "2>|"};
 
@@ -13,13 +15,13 @@ int ind_sym(char * sym){
         if(strcmp(mes_symboles[i], sym) == 0){
             return i;
         }
-        i++;
     }
     return -1;
 }
 
 void parse_redirections(char **splited_args, int len){
     for(int i = 0; i < len; i++){
+        
         switch(ind_sym(splited_args[i])){
             case 0:
                 splited_args[i] = NULL;
@@ -48,11 +50,10 @@ void parse_redirections(char **splited_args, int len){
             case 6:
                 splited_args[i] = NULL;
                 avec_ecrasement_stderr(splited_args, splited_args[i+1]);
-                break;
-            default:
-                execvp(splited_args[0], splited_args);
+                break;                
         }
     }
+    execvp(splited_args[0], splited_args);
 }
 
 // cmd < fic 
@@ -114,6 +115,41 @@ void avec_ecrasement_stderr(char **cmd, char * fic){
     execvp(cmd[0], cmd);
 }
 
+void pipeline(char *args){
+    int pipefd[2];
+    pipe(pipefd);
+    char **splited_args = allocate_splited_string();
+    char **splited_cmd;
+    int len_cmd;
+    int len = split_string(args, "|", splited_args);
+    printf("Len: %d\n",len);
+    for(int i = 0; i<len-1; i++){
+        printf("%s\n",splited_args[i]);
+        switch (fork()){
+            case -1:
+                perror("fork()");
+            case 0:
+                close(pipefd[1]);
+                dup2(pipefd[0], 0);
+                break;
+            default:
+                close(pipefd[0]);
+                dup2(pipefd[1], 1);
+                splited_cmd = allocate_splited_string();
+                len_cmd = split_string(splited_args[i], " ", splited_cmd);
+                parse_redirections(splited_cmd, len_cmd);
+        }
+    }
+    splited_cmd = allocate_splited_string();
+    len_cmd = split_string(splited_args[len-1], " ", splited_cmd);
+    parse_redirections(splited_cmd, len_cmd);
+
+}
+
 int main(){
+    char p1[256] = "cat texte | head -n 15 | tail -n 14 | head -n 13 | tail -n 10";
+    char p[256] = "ls -l |  head -n 8 | tail -n 5 | head -n 2";
+    pipeline(p);
+
     return 0;
 }
