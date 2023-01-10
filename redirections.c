@@ -212,7 +212,7 @@ void fork_tree(int *n, char ** splited_args){
     char ** splited_cmd;
     int len_cmd;
 
-    if( n > 0){
+    if( *n > 0){
         pid_t pid;
         int pipefd[2];
         pipe(pipefd);
@@ -231,10 +231,12 @@ void fork_tree(int *n, char ** splited_args){
                 splited_cmd = allocate_splited_string();
                 len_cmd = split_string(splited_args[*n], " ", splited_cmd);
 				char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
+                for (int i=0;i<PATH_MAX;i++) star_path[i] = NULL;
 				star(splited_cmd, len_cmd, &len_array, star_path);
                 parse_redirections(star_path, len_array);
                 free_2d_array(star_path);
                 free_splited_string(splited_cmd);
+                exit(exit_code);
             }
         }
     }
@@ -242,25 +244,27 @@ void fork_tree(int *n, char ** splited_args){
     splited_cmd = allocate_splited_string();
     len_cmd = split_string(splited_args[0], " ", splited_cmd);
     char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
+    for (int i=0;i<PATH_MAX;i++) star_path[i] = NULL;
     star(splited_cmd, len_cmd, &len_array, star_path);
     parse_redirections(star_path, len_array);
     free_2d_array(star_path);
     free_splited_string(splited_cmd);
+    exit(exit_code);
 }
 
 void pipeline(char *args){
     char **splited_args = allocate_splited_string();
     int len = split_string(args, " | ", splited_args);
+    //fprintf(stderr, "%d\n", len);
     //for(int j = 0; j<len; j++) write(STDERR_FILENO, splited_args[j], strlen(splited_args[j]));
-    int status;
+    int status, n = len - 1;
     if(len > 1){
         switch (fork()){
         case -1:						
             write(STDERR_FILENO,"fork", strlen("fork"));
             break;
         case 0:
-            len--;
-            //fork_tree(&len, splited_args);
+            fork_tree(&n, splited_args);
             break;
         default:
             wait(&status);
@@ -274,6 +278,7 @@ void pipeline(char *args){
         char ** splited_cmd = allocate_splited_string();
         int len_cmd = split_string(splited_args[0], " ", splited_cmd);
         char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
+        for (int i=0;i<PATH_MAX;i++) star_path[i] = NULL;
         star(splited_cmd, len_cmd, &len_array, star_path);
         free_splited_string(splited_cmd);
 

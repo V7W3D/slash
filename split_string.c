@@ -15,9 +15,11 @@ int split_string(char *string, const char *delimiters, char **result){
     }
     if(brk == 0){
       token[k] = '\0';
-      *(result + count) = malloc(strlen(token) + 1);
-      strcpy(*(result + count), token);
-      count++;
+      if(k > 0){
+        *(result + count) = malloc(strlen(token) + 1);
+        strcpy(*(result + count), token);
+        count++;
+      }
       k=0;
       memset(token, 0, sizeof(token));
       i += l;
