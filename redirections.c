@@ -66,8 +66,13 @@ int ind_sym(char * sym){
 
 void parse_redirections(char **updated_args, int len){
     int i, err = 0;
-
-    //for(int j = 0; j<len; j++) write(STDERR_FILENO, updated_args[j], strlen(updated_args[j]));
+    /*
+    int j = 0;
+    while(updated_args[j]){
+        write(STDERR_FILENO, updated_args[j], strlen(updated_args[j]));
+        j++;
+    }
+    write(STDERR_FILENO, "\n", 1);*/
     int fd_tmp0 = dup(0);
     int fd_tmp1 = dup(1);
     int fd_tmp2 = dup(2);
@@ -110,10 +115,11 @@ void parse_redirections(char **updated_args, int len){
 
     if(err != 1){
         if(is_intern(updated_args[0]) == 0) commande_interne(updated_args, i); else execvp(updated_args[0], updated_args);
-        dup2(fd_tmp0, 0);
-        dup2(fd_tmp1, 1);
-        dup2(fd_tmp2, 2);
     }
+        
+    dup2(fd_tmp0, 0);
+    dup2(fd_tmp1, 1);
+    dup2(fd_tmp2, 2);
 }
 
 // cmd < fic 
@@ -202,50 +208,42 @@ int avec_ecrasement_stderr(char * fic){
     return 0;
 }
 
-void fork_tree(int * i, int n, char ** splited_args){
+void fork_tree(int *n, char ** splited_args){
     char ** splited_cmd;
     int len_cmd;
 
-    if(*i < n){
+    if( n > 0){
         pid_t pid;
         int pipefd[2];
         pipe(pipefd);
         if((pid = fork()) < 0) perror("fork");
         else{
             if(pid == 0){
-                close(pipefd[1]);
-                dup2(pipefd[0], 0);
-                *i = *i + 1;
-                fork_tree(i, n, splited_args);
-            }
-            else{
                 close(pipefd[0]);
                 dup2(pipefd[1], 1);
-                int len_array = 0, len = 0;
+                *n = *n - 1;
+                fork_tree(n, splited_args);
+            }
+            else{
+                close(pipefd[1]);
+                dup2(pipefd[0], 0);
+                int len_array = 0;
                 splited_cmd = allocate_splited_string();
-                len_cmd = split_string(splited_args[*i], " ", splited_cmd);
+                len_cmd = split_string(splited_args[*n], " ", splited_cmd);
 				char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
 				star(splited_cmd, len_cmd, &len_array, star_path);
-				char ** updated_args = malloc(10 * PATH_MAX * sizeof(char*));
-				for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
-				concat(splited_cmd, star_path, len_cmd, len_array, updated_args, &len);
-                parse_redirections(updated_args, len);
-	            free_2d_array(updated_args);
+                parse_redirections(star_path, len_array);
                 free_2d_array(star_path);
                 free_splited_string(splited_cmd);
             }
         }
     }
-    int len_array = 0, len = 0;
+    int len_array = 0;
     splited_cmd = allocate_splited_string();
-    len_cmd = split_string(splited_args[n], " ", splited_cmd);
+    len_cmd = split_string(splited_args[0], " ", splited_cmd);
     char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
     star(splited_cmd, len_cmd, &len_array, star_path);
-    char ** updated_args = malloc(10 * PATH_MAX * sizeof(char*));
-    for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
-    concat(splited_cmd, star_path, len_cmd, len_array, updated_args, &len);
-    parse_redirections(updated_args, len);
-    free_2d_array(updated_args);
+    parse_redirections(star_path, len_array);
     free_2d_array(star_path);
     free_splited_string(splited_cmd);
 }
@@ -256,13 +254,13 @@ void pipeline(char *args){
     //for(int j = 0; j<len; j++) write(STDERR_FILENO, splited_args[j], strlen(splited_args[j]));
     int status;
     if(len > 1){
-        int i = 0;
         switch (fork()){
         case -1:						
             write(STDERR_FILENO,"fork", strlen("fork"));
             break;
         case 0:
-            fork_tree(&i, len-1, splited_args);
+            len--;
+            //fork_tree(&len, splited_args);
             break;
         default:
             wait(&status);
@@ -277,21 +275,17 @@ void pipeline(char *args){
         int len_cmd = split_string(splited_args[0], " ", splited_cmd);
         char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
         star(splited_cmd, len_cmd, &len_array, star_path);
-        char ** updated_args = malloc(10 * PATH_MAX * sizeof(char*));
-        for (int i=0;i<PATH_MAX;i++) updated_args[i] = NULL;
-        concat(splited_cmd, star_path, len_cmd, len_array, updated_args, &len);
-        free_2d_array(star_path);
         free_splited_string(splited_cmd);
 
-        if(is_intern(updated_args[0]) == 0) parse_redirections(updated_args, len);
+        if(is_intern(star_path[0]) == 0) parse_redirections(star_path, len_array);
         else{
             switch (fork()){
             case -1:						
                 write(STDERR_FILENO,"fork", strlen("fork"));
                 break;
             case 0:
-                parse_redirections(updated_args, len);
-                free_2d_array(updated_args);
+                parse_redirections(star_path, len_array);
+                free_2d_array(star_path);
                 free_splited_string(splited_args);
                 exit(errno);
                 break;
@@ -302,7 +296,7 @@ void pipeline(char *args){
                 }
             }
         }
-        free_2d_array(updated_args);
+        free_2d_array(star_path);
     }
     free_splited_string(splited_args);
 }
