@@ -65,136 +65,141 @@ int ind_sym(char * sym){
 }
 
 void parse_redirections(char **updated_args, int len){
-    int i, brk = 0;
+    int i, err = 0;
 
     //for(int j = 0; j<len; j++) write(STDERR_FILENO, updated_args[j], strlen(updated_args[j]));
-    /**/
-    for(i = 0; i < len && brk == 0; i++){  
+    int fd_tmp0 = dup(0);
+    int fd_tmp1 = dup(1);
+    int fd_tmp2 = dup(2);
+
+    for(i = 0; i < len; i++){  
         switch(ind_sym(updated_args[i])){
             case 0:
                 updated_args[i] = NULL;
-                lecture(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = lecture(updated_args[i+1]);
                 break;
             case 1:
                 updated_args[i] = NULL;
-                sans_ecrasement_stdout(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = sans_ecrasement_stdout(updated_args[i+1]);
                 break;
             case 2:
                 updated_args[i] = NULL;
-                avec_ecrasement_stdout(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = avec_ecrasement_stdout(updated_args[i+1]);
                 break;
             case 3:
                 updated_args[i] = NULL;
-                en_concat_stdout(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = en_concat_stdout(updated_args[i+1]);
                 break;
             case 4:
                 updated_args[i] = NULL;
-                en_concat_stderr(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = en_concat_stderr(updated_args[i+1]);
                 break;
             case 5:
                 updated_args[i] = NULL;
-                sans_ecrasement_stderr(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = sans_ecrasement_stderr(updated_args[i+1]);
                 break;
             case 6:
                 updated_args[i] = NULL;
-                avec_ecrasement_stderr(updated_args, i, updated_args[i+1]);
-                brk = 1;
+                err = avec_ecrasement_stderr(updated_args[i+1]);
                 break;                
         }
     }
-    
-    if(i == len) {
-        if(is_intern(updated_args[0]) == 0) commande_interne(updated_args, len);
-        else execvp(updated_args[0], updated_args);
+
+    i = 0;
+    while(updated_args[i]) i++;
+
+    if(err != 1){
+        if(is_intern(updated_args[0]) == 0) commande_interne(updated_args, i); else execvp(updated_args[0], updated_args);
+        dup2(fd_tmp0, 0);
+        dup2(fd_tmp1, 1);
+        dup2(fd_tmp2, 2);
     }
 }
 
 // cmd < fic 
-void lecture(char ** cmd, int len, char *fic){
+int lecture(char *fic){
     //for(int i = 0; i < len_cmd; i++) write(STDERR_FILENO, cmd[i], strlen(cmd[i]));
     int fd = open(fic, O_RDONLY);
-    int fd_tmp = dup(0);
+    if(fd == -1){
+        exit_code = 1;
+        return 1;
+    }
     dup2(fd, 0);
-    if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-    dup2(fd_tmp, 0);
+    return 0;
 }
 
 // cmd > fic 
-void sans_ecrasement_stdout(char ** cmd, int len, char *fic){
+int sans_ecrasement_stdout(char *fic){
     int fd = open(fic, O_CREAT | O_EXCL | O_WRONLY , 0666);
     if(fd == -1){
         if(errno == EEXIST){
             write(2, "le fichier existe déjà\n", strlen("le fichier existe déjà\n"));
         }
         exit_code = 1;
+        return 1;
     }
     else{
-        int fd_tmp = dup(1);
         dup2(fd, 1);
-        if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-        dup2(fd_tmp, 1);
+        return 0;
     }
 } 
 
 // cmd >| fic 
-void avec_ecrasement_stdout(char ** cmd, int len, char *fic){
+int avec_ecrasement_stdout(char *fic){
     int fd = open(fic, O_CREAT | O_TRUNC | O_WRONLY, 0666);
-    if(fd == -1) exit_code = 1;
-    int fd_tmp = dup(1);
+    if(fd == -1){
+        exit_code = 1;
+        return 1;
+    }
     dup2(fd, 1);
-    if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-    dup2(fd_tmp, 1);
+    return 0;
 }
 
 // cmd >> fic
-void en_concat_stdout(char ** cmd, int len, char * fic){
+int en_concat_stdout(char * fic){
     int fd = open(fic, O_WRONLY | O_CREAT | O_APPEND, 0666);
-    if(fd == -1) exit_code = 1;
-    int fd_tmp = dup(1);
+    if(fd == -1){
+        exit_code = 1;
+        return 1;
+    }
     dup2(fd, 1);
-    if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-    dup2(fd_tmp, 1);
+    return 0;
 }
 
 // cmd 2>> fic
-void en_concat_stderr(char ** cmd, int len, char *fic){
+int en_concat_stderr(char *fic){
     int fd = open(fic, O_WRONLY | O_CREAT | O_APPEND, 0666);
-    if(fd == -1) exit_code = 1;
-    int fd_tmp = dup(2);
+    if(fd == -1){
+        exit_code = 1;
+        return 1;
+    }
     dup2(fd, 2);
-    if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-    dup2(fd_tmp, 2);
+    return 0;
 }
 
 // cmd 2> fic
-void sans_ecrasement_stderr(char **cmd, int len, char * fic){
+int sans_ecrasement_stderr(char * fic){
     int fd = open(fic, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if(fd < 0){
         if(errno == EEXIST) write(2, "Le fichier existe déjà\n", strlen("Le fichier existe déjà\n"));
         exit_code = 1;
+        return 1;
     }
     else {
-        int fd_tmp = dup(2);
         dup2(fd, 2);
-        if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-        dup2(fd_tmp, 2);
+        return 0;
     }
 }
 
 // cmd 2>| fic
-void avec_ecrasement_stderr(char **cmd, int len, char * fic){
+int avec_ecrasement_stderr(char * fic){
     int fd = open(fic, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd == -1) exit_code = 1;
-    int fd_tmp = dup(2);
+    if(fd == -1){
+        exit_code = 1;
+        return 1;
+    }
     dup2(fd, 2);
-    if(is_intern(cmd[0]) == 0) commande_interne(cmd, len); else execvp(cmd[0], cmd);
-    dup2(fd_tmp, 2);
+    return 0;
 }
 
 void fork_tree(int * i, int n, char ** splited_args){

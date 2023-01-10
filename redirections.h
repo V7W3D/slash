@@ -3,13 +3,13 @@
 
 extern int exit_code;
 
-void lecture(char ** cmd, int len, char *fic);
-void sans_ecrasement_stdout(char ** cmd, int len, char *fic);
-void avec_ecrasement_stdout(char ** cmd, int len, char *fic);
-void en_concat_stdout(char ** cmd, int len, char * fic);
-void en_concat_stderr(char ** cmd, int len, char *fic);
-void sans_ecrasement_stderr(char **cmd, int len, char * fic);
-void avec_ecrasement_stderr(char **cmd, int len, char * fic);
+int lecture(char *fic);
+int sans_ecrasement_stdout(char *fic);
+int avec_ecrasement_stdout(char *fic);
+int en_concat_stdout(char * fic);
+int en_concat_stderr(char *fic);
+int sans_ecrasement_stderr(char * fic);
+int avec_ecrasement_stderr(char * fic);
 void pipeline(char *args);
 
 #endif
