@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include "split_string.h"
 #include "double_star.h"
 #include "star.h"
@@ -14,12 +15,12 @@ static int double_star_aux(char * ref, char * target, char * chemin, char ** res
   char *ref_tmp = malloc(PATH_MAX), *ref_chemin = malloc(PATH_MAX);
   DIR * dirp1;
   DIR * d;
+  struct stat st1, st2;
   
   if((dirp1 = opendir(ref)) == NULL){
     perror("opendir");
     exit(1);
   }
-
 
   if (strlen(chemin) >1 && strlen(target)>1)
     snprintf(ref_chemin, PATH_MAX, "%s/%s/%s", ref, chemin, target);
@@ -42,12 +43,17 @@ static int double_star_aux(char * ref, char * target, char * chemin, char ** res
   while((entry = readdir(dirp1))){
     if(entry->d_name[0] != '.'){
       snprintf(ref_tmp, PATH_MAX, "%s/%s", ref, entry->d_name);
-      if((d = opendir(ref_tmp)) != NULL){
-        double_star_aux(ref_tmp, target, chemin, result, len_result);
+      if((lstat(ref_tmp, &st1) != -1) && (stat(ref_tmp, &st2) != -1)){
+        if(st1.st_dev == st2.st_dev && st1.st_ino == st2.st_ino){
+          if((d = opendir(ref_tmp)) != NULL){
+            double_star_aux(ref_tmp, target, chemin, result, len_result);
+          }
+          closedir(d);
+        }
       }
-      closedir(d);
     }
   }
+  
   free(ref_tmp);
   closedir(dirp1);
   return 0;
