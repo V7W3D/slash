@@ -231,7 +231,7 @@ void fork_tree(int *n, char ** splited_args){
                 splited_cmd = allocate_splited_string();
                 len_cmd = split_string(splited_args[*n], " ", splited_cmd);
 				char ** star_path = malloc(10 * PATH_MAX * sizeof(char*));
-                for (int i=0;i<PATH_MAX;i++) star_path[i] = NULL;
+                for (int i=0;i<10*PATH_MAX;i++) star_path[i] = NULL;
 				star(splited_cmd, len_cmd, &len_array, star_path);
                 parse_redirections(star_path, len_array);
                 free_2d_array(star_path);

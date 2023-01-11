@@ -70,7 +70,7 @@ static int end_with_suffix(char *string, char *suffix){
 		end_suffix--,
 		end_string--;
 	}
-	if (*end_string != *end_suffix) return 0;
+	if (*end_string != *end_suffix || end_suffix != suffix) return 0;
 	return 1;
 }
 
@@ -112,7 +112,7 @@ static void absolute_path(char *path, int *index_start, char *result){
 	free(abs_path);
 }
 
-static void format_path(char *string, int start_index, char *result){
+void format_path(char *string, int start_index, char *result){
 	int i = 0;
 	int inserted = 0;
 	while (start_index < strlen(string)){
@@ -193,7 +193,7 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 	}else if (!stat(ref, &buf)){
 		char *result_formated = alloc_string(PATH_MAX);
 		format_path(ref, len_abs_path, result_formated);
-		insert_2d_array(result, result_formated, current_pos);
+		if (strlen(result_formated)>0) insert_2d_array(result, result_formated, current_pos);
 	}
 }
 

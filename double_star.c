@@ -20,9 +20,24 @@ static int double_star_aux(char * ref, char * target, char * chemin, char ** res
     exit(1);
   }
 
-  snprintf(ref_chemin, PATH_MAX, "%s/%s/%s", ref, chemin, target);
-  star_aux(ref_chemin, result, len_result, 0);
+
+  if (strlen(chemin) >1 && strlen(target)>1)
+    snprintf(ref_chemin, PATH_MAX, "%s/%s/%s", ref, chemin, target);
+  else if (strlen(chemin) >1)
+    snprintf(ref_chemin, PATH_MAX, "%s/%s", ref, chemin);
+  else if (strlen(target) > 1)
+    snprintf(ref_chemin, PATH_MAX, "%s/%s", ref, target);
+  else
+    snprintf(ref_chemin, PATH_MAX, "%s", ref);
+
+  char *formated_path = malloc(PATH_MAX);
+  for (int i=0;i<PATH_MAX;i++) formated_path[i] = '\0';
+  format_path(ref_chemin, 0, formated_path);
   free(ref_chemin);
+
+  star_aux(formated_path, result, len_result, 2);
+
+  free(formated_path);
   
   while((entry = readdir(dirp1))){
     if(entry->d_name[0] != '.'){
