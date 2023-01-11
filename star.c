@@ -8,6 +8,7 @@
 #include "star.h"
 #include "utilslash.h"
 #include "double_star.h"
+#include <stdio.h>
 
 void concat(char **buf1, char **buf2, int len1, int len2, char **result){
 	int stoped_index = 0;
@@ -138,6 +139,12 @@ static char* alloc_string(int len){
 	return result;
 }	
 
+void valid_path(char *path, char del, char rp){
+	for (int i=0;i<strlen(path);i++){
+		if (path[i] == del) path[i] = rp;
+	}
+}
+
 void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 	
 	struct stat buf;
@@ -157,6 +164,7 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 					char *path = alloc_string(last_index_star+1); 
 					memmove(path, ref, last_index_star);
 
+					valid_path(path, '[', '*');
 					dir = opendir(path);
 
 					if (dir != NULL){
@@ -166,7 +174,9 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 								char *entry_path = alloc_string(strlen(path)+strlen(entry->d_name)+1);
 								memmove(entry_path, ref, strlen(path));
 								memmove(entry_path+strlen(path), entry->d_name, strlen(entry->d_name));
+								valid_path(entry_path, '[', '*');
 								if (stat(entry_path, &buf) != 0) return;
+								valid_path(entry_path, '*', '[');
 								if (S_ISDIR(buf.st_mode) || S_ISLNK(buf.st_mode)){
 									char *updated_path=alloc_string(strlen(entry_path)+strlen(ref+index+1)+1);
 									memmove(updated_path, entry_path, strlen(entry_path));
@@ -177,6 +187,7 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 									if (index+strlen(suffix)+1 >= strlen(ref)) {
 										char *result_formated = alloc_string(PATH_MAX);
 										format_path(entry_path, len_abs_path, result_formated);
+										valid_path(result_formated, '[', '*');
 										insert_2d_array(result, result_formated, current_pos);
 									}
 								}
@@ -190,10 +201,13 @@ void star_aux(char *ref, char **result, int *current_pos, int len_abs_path){
 					free(suffix);
 			}
 		}
-	}else if (!stat(ref, &buf)){
-		char *result_formated = alloc_string(PATH_MAX);
-		format_path(ref, len_abs_path, result_formated);
-		if (strlen(result_formated)>0) insert_2d_array(result, result_formated, current_pos);
+	}else{ 
+		valid_path(ref, '[', '*');
+		if (!stat(ref, &buf)){
+			char *result_formated = alloc_string(PATH_MAX);
+			format_path(ref, len_abs_path, result_formated);
+			if (strlen(result_formated)>0) insert_2d_array(result, result_formated, current_pos);
+		}
 	}
 }
 
