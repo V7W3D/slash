@@ -16,6 +16,11 @@
 
 char mes_symboles[7][4] = {"<", ">", ">|", ">>", "2>>", "2>", "2>|"};
 int exit_code = 0;
+int SIG = 0;
+
+void handler(int sig){
+    exit_code = 255;
+}
 
 void commande_interne(char ** updated_args, int len_updated_args){
     if (strcmp(updated_args[0], "cd") == 0){
@@ -268,12 +273,11 @@ void pipeline(char *args){
             break;
         default:
             wait(&status);
-            if (WIFEXITED(status)){
-                if (WEXITSTATUS(status) == 0) exit_code = 0; else exit_code = 1;
-            }
+            if (WEXITSTATUS(status) == 0) exit_code = 0; else exit_code = 1;
         }
     }
     else{
+        struct sigaction sa = {0};
         int len_array = 0;
         char ** splited_cmd = allocate_splited_string();
         int len_cmd = split_string(splited_args[0], " ", splited_cmd);
@@ -289,6 +293,9 @@ void pipeline(char *args){
                 write(STDERR_FILENO,"fork", strlen("fork"));
                 break;
             case 0:
+                sa.sa_handler = handler;
+                sigaction(SIGINT,&sa,NULL);
+                sigaction(SIGTERM,&sa,NULL);
                 parse_redirections(star_path, len_array);
                 free_2d_array(star_path);
                 free_splited_string(splited_args);
@@ -296,9 +303,7 @@ void pipeline(char *args){
                 break;
             default:
                 wait(&status);
-                if (WIFEXITED(status)){
-                     if (WEXITSTATUS(status) == 0) exit_code = 0; else exit_code = 1;
-                }
+                if (!WIFSTOPPED(status) && WEXITSTATUS(status) == 0) exit_code = 0; else exit_code = 1;
             }
         }
         free_2d_array(star_path);

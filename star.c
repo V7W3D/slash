@@ -8,7 +8,6 @@
 #include "star.h"
 #include "utilslash.h"
 #include "double_star.h"
-#include <stdio.h>
 
 void concat(char **buf1, char **buf2, int len1, int len2, char **result){
 	int stoped_index = 0;

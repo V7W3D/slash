@@ -17,6 +17,11 @@ char *args;
 struct string *PROMPT;
 
 int main(int argc, char **argv){
+
+	struct sigaction sa = {0};
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGINT,&sa,NULL);
+    sigaction(SIGTERM,&sa,NULL);
 	
 	rl_outstream = stderr;
 	PWD = string_new(PATH_MAX);
@@ -33,19 +38,36 @@ int main(int argc, char **argv){
 	while(1){
 		init_string(PROMPT);
 		args = NULL;
-		char *str1 = malloc(7*sizeof(char));
-		snprintf(str1,4, "[%d]", exit_code);
-		if (PWD->length + 6 <= MAXLENPROMPT){
-			string_append(PROMPT, str1);
-			string_append(PROMPT, PWD->data);
-			string_append(PROMPT, "$ ");
+		if(SIG == 0){
+			char *str1 = malloc(7*sizeof(char));
+			snprintf(str1, 4, "[%d]", exit_code);
+			if (PWD->length + 6 <= MAXLENPROMPT){
+				string_append(PROMPT, str1);
+				string_append(PROMPT, PWD->data);
+				string_append(PROMPT, "$ ");
+			}else{
+				string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
+				snprintf(str1, 7, "[%d]...", exit_code);
+				insert_prefixe(PROMPT, str1, 6);
+				string_append(PROMPT, "$ ");
+			}
+			free(str1);
 		}else{
-			string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
-			snprintf(str1,7,"[%d]...",exit_code);
-			insert_prefixe(PROMPT, str1, 6);
-			string_append(PROMPT, "$ ");
+			char *str1 = malloc(8*sizeof(char));
+			snprintf(str1, 5, "[SIG]");
+			if (PWD->length + 7 <= MAXLENPROMPT){
+				string_append(PROMPT, str1);
+				string_append(PROMPT, PWD->data);
+				string_append(PROMPT, "$ ");
+			}else{
+				string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-3);
+				snprintf(str1, 8, "[SIG]...", exit_code);
+				insert_prefixe(PROMPT, str1, 7);
+				string_append(PROMPT, "$ ");
+			}
+			free(str1);
+			SIG = 0;
 		}
-		free(str1);
 		args = readline(PROMPT->data);
 		if (args == NULL){
 			exit(exit_code);
