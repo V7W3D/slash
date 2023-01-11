@@ -4,8 +4,8 @@
 #include <limits.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <sys/stat.h>
+#include <stdio.h>
 #include "split_string.h"
 #include "double_star.h"
 #include "star.h"
@@ -18,7 +18,7 @@ static int double_star_aux(char * ref, char * target, char * chemin, char ** res
   struct stat st1, st2;
   
   if((dirp1 = opendir(ref)) == NULL){
-    perror("opendir");
+    write(2, "opendir\n", strlen("opendir\n"));
     exit(1);
   }
 
@@ -53,7 +53,7 @@ static int double_star_aux(char * ref, char * target, char * chemin, char ** res
       }
     }
   }
-  
+
   free(ref_tmp);
   closedir(dirp1);
   return 0;

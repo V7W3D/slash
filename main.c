@@ -38,36 +38,19 @@ int main(int argc, char **argv){
 	while(1){
 		init_string(PROMPT);
 		args = NULL;
-		if(SIG == 0){
-			char *str1 = malloc(7*sizeof(char));
-			snprintf(str1, 4, "[%d]", exit_code);
-			if (PWD->length + 6 <= MAXLENPROMPT){
-				string_append(PROMPT, str1);
-				string_append(PROMPT, PWD->data);
-				string_append(PROMPT, "$ ");
-			}else{
-				string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
-				snprintf(str1, 7, "[%d]...", exit_code);
-				insert_prefixe(PROMPT, str1, 6);
-				string_append(PROMPT, "$ ");
-			}
-			free(str1);
+		char *str1 = malloc(7*sizeof(char));
+		snprintf(str1, 4, "[%d]", exit_code);
+		if (PWD->length + 6 <= MAXLENPROMPT){
+			string_append(PROMPT, str1);
+			string_append(PROMPT, PWD->data);
+			string_append(PROMPT, "$ ");
 		}else{
-			char *str1 = malloc(8*sizeof(char));
-			snprintf(str1, 5, "[SIG]");
-			if (PWD->length + 7 <= MAXLENPROMPT){
-				string_append(PROMPT, str1);
-				string_append(PROMPT, PWD->data);
-				string_append(PROMPT, "$ ");
-			}else{
-				string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-3);
-				snprintf(str1, 8, "[SIG]...", exit_code);
-				insert_prefixe(PROMPT, str1, 7);
-				string_append(PROMPT, "$ ");
-			}
-			free(str1);
-			SIG = 0;
+			string_copy_from_end(PROMPT, PWD, MAXLENPROMPT-2);
+			snprintf(str1, 7, "[%d]...", exit_code);
+			insert_prefixe(PROMPT, str1, 6);
+			string_append(PROMPT, "$ ");
 		}
+		free(str1);
 		args = readline(PROMPT->data);
 		if (args == NULL){
 			exit(exit_code);
@@ -77,8 +60,4 @@ int main(int argc, char **argv){
 			free(args);
 		}
 	}
-	/*
-	string_delete(PWD);
-	string_delete(OLD_PATH);
-	string_delete(PROMPT);*/
 }

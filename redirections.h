@@ -2,7 +2,6 @@
 #define REDIRECTIONS_H
 
 extern int exit_code;
-extern int SIG;
 
 int lecture(char *fic);
 int sans_ecrasement_stdout(char *fic);

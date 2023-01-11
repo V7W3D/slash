@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -16,7 +15,6 @@
 
 char mes_symboles[7][4] = {"<", ">", ">|", ">>", "2>>", "2>", "2>|"};
 int exit_code = 0;
-int SIG = 0;
 
 void handler(int sig){
     exit_code = 255;
@@ -71,13 +69,6 @@ int ind_sym(char * sym){
 
 void parse_redirections(char **updated_args, int len){
     int i, err = 0;
-    /*
-    int j = 0;
-    while(updated_args[j]){
-        write(STDERR_FILENO, updated_args[j], strlen(updated_args[j]));
-        j++;
-    }
-    write(STDERR_FILENO, "\n", 1);*/
     int fd_tmp0 = dup(0);
     int fd_tmp1 = dup(1);
     int fd_tmp2 = dup(2);
@@ -221,7 +212,7 @@ void fork_tree(int *n, char ** splited_args){
         pid_t pid;
         int pipefd[2];
         pipe(pipefd);
-        if((pid = fork()) < 0) perror("fork");
+        if((pid = fork()) < 0) write(STDERR_FILENO,"fork", strlen("fork"));
         else{
             if(pid == 0){
                 close(pipefd[0]);
@@ -260,8 +251,6 @@ void fork_tree(int *n, char ** splited_args){
 void pipeline(char *args){
     char **splited_args = allocate_splited_string();
     int len = split_string(args, " | ", splited_args);
-    //fprintf(stderr, "%d\n", len);
-    //for(int j = 0; j<len; j++) write(STDERR_FILENO, splited_args[j], strlen(splited_args[j]));
     int status, n = len - 1;
     if(len > 1){
         switch (fork()){
