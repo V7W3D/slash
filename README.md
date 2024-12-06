@@ -4,7 +4,7 @@
 
 
 # Introduction
-Dans le cadre du cours SY5, il nous est proposé un projet : programmer un interpréteur de commandes interactifs **slash** reprenant plus ou moins les fonctionnalités d'shell usuel.
+Dans le cadre du cours SY5, il nous est proposé un projet : programmer un interpréteur de commandes interactifs **slash** reprenant plus ou moins les fonctionnalités d'un shell usuel.
 
 ---
 # Méthodologie
