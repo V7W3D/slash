@@ -1,20 +1,35 @@
-# Introduction
-Dans le cadre du cours SY5, il nous est proposé un projet : programmer un interpréteur de commandes interactifs **slash** reprenant plus ou moins les fonctionnalités d'un shell usuel.
+# **Slash - A Custom Unix Shell Utility**
 
----
-# Méthodologie
-* **Cahier de charges**
-    Décrivant l'ensemble des conditions attachées à l'exécution du projet, le cahier des charges nous a permis dans un premier temps, de définir le contexte, les enjeux, les objectifs techniques ainsi que l'exécutable et les axes de développement envisagés. En organisant nos idées, nous avons ainsi pu vérifier la concordance et la faisabilité de notre projet
+**Slash** is a **C-based** project that implements advanced features to enhance shell command execution in Unix/Linux environments. It provides tools for directory management, input/output stream manipulation, and wildcard expansion (`*`, `**`).
 
-* **Méthodes de gestion**
-    Notre expérience professionnelle et personnelle acquise au cours de l'année dernière, notamment le cours de Pré-pro2 - Conduite de projet et PI4 - Projet Informatique, nous a permis d'aiguiser notre curiosité et de nous ouvrir à d'autres domaines et technologies, et ainsi pour accompagner le développement du projet, dès le début, un plan de gestion de projet a rapidement été mis en place. Ce plan comporte la méthodologie à suivre et les outils nécessaires au bon déroulement de notre projet. Étant dans une dimension ingénieur, cette gestion est d'autant plus importante que le respect des délais, des coûts et de la performance dans la conception d'un système complexe. Ce dernier permet d'autre part de distribuer les travaux à réaliser entre les membres de l'équipe mais également de créer une base de référence permettant de surveiller les écarts et l'évolution du projet afin d'assurer sa continuité.
+## **Key Features**
+**Directory Management** – Custom implementation of the `cd` command and path handling.  
+**Stream Redirections** – Supports input/output redirections (`>`, `<`, `|`).  
+**Wildcard Expansion** – Implements `*` and `**` for advanced file and directory matching.  
+**String Manipulation** – Utility functions for processing and transforming strings in a shell context.  
+**Built-in Test Script** – `test.sh` to validate project functionality.  
 
-* **planification**
-  * **Réunion Scrum:** Réalisées chaque semaine, notre équipe conçoit un répertoire exhaustif des tâches à accomplir pendant chaque sprint afin de mener à bien la création du produit et du suivi de notre travail. En plus de ça, ces pratiques permettent à notre équipe de poser un cadre et de fluidifier le développement d'un projet agile dans les meilleures conditions. Plus que le partage d'informations et l'avancement du projet, ces moments d'échanges permettent de partager une vision commune et d'améliorer les méthodes de travail.
-  
-  * **Division des tâches:** En l'absence d'une organisation bien définie, un projet peut rapidement s'effacer derrière les impératifs de la structure permanente. C'est pour cela que nous avons opter pour la division en trois sous-équipes et que chacune se charge d'une tâche principale
+## **Project Structure**
+📂 **Key Files:**  
+- `main.c` → Program entry point.  
+- `cd.c` / `cd.h` → Directory navigation management.  
+- `star.c` / `star.h` → Wildcard (`*`, `**`) expansion implementation.  
+- `redirections.c` / `redirections.h` → Input/output redirections handling.  
+- `split_string.c` → String parsing and manipulation utilities.  
 
-Le projet a été  divisé en plusieurs fichiers (.c et .h) pour une meilleure visiblité et lisibilité du code.
-Ainsi chacune des commandes de 'pwd' et 'cd' a son propre fichier.
-Pour 'exit', elle a directement été implémentée dans le fichier main.c où y est la fonction main.
+🔧 **Compile with Makefile:**  
+```bash
+make
+```
+
+🚀 **Run the program:**  
+```bash
+./main
+```
+
+## Contributing
+Contributions are welcome! Feel free to fork this repository, submit issues, or create pull requests.
+
+## License
+This project is licensed under the MIT License.
 
