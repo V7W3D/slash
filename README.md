@@ -1,6 +1,6 @@
 # **Slash - A Custom Unix Shell Utility**
 
-**Slash** is a **C-based** project that implements advanced features to enhance shell command execution in Unix/Linux environments. It provides tools for directory management, input/output stream manipulation, and wildcard expansion (`*`, `**`).
+**Slash** is a **C-based** project that implements advanced features of a shell command in Unix/Linux environments. It provides tools for directory management, input/output stream manipulation, and wildcard expansion (`*`, `**`).
 
 ## **Key Features**
 **Directory Management** – Custom implementation of the `cd` command and path handling.  
