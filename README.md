@@ -13,7 +13,8 @@
 📂 **Key Files:**  
 - `main.c` → Program entry point.  
 - `cd.c` / `cd.h` → Directory navigation management.  
-- `star.c` / `star.h` → Wildcard (`*`, `**`) expansion implementation.  
+- `star.c` / `star.h` → Wildcard `*` expansion implementation.
+- `double_star.c` / `double_star.h` → Wildcard `**` expansion implementation.    
 - `redirections.c` / `redirections.h` → Input/output redirections handling.  
 - `split_string.c` → String parsing and manipulation utilities.  
 
