@@ -25,7 +25,7 @@ make
 
 🚀 **Run the program:**  
 ```bash
-./main
+./slash
 ```
 
 ## Contributing
